@@ -1,12 +1,11 @@
 package com.besha.egyptguide.features.home.presenation.viewmodel
 
+import com.besha.egyptguide.appcore.data.remote.BackEndServices
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
 import com.besha.egyptguide.features.home.domain.usecase.NearBySearchUseCase
 import com.besha.egyptguide.features.maps.domain.usecases.CurrentLocationUseCase
-import com.besha.egyptguide.features.maps.presentaion.viewmodel.MapsResults
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.PlaceTypes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val backEndServices: BackEndServices,
     private val nearBySearchUseCase: NearBySearchUseCase,
     private val getCurrentLocationUseCase: CurrentLocationUseCase,
 ) : MVIBaseViewModel<HomeActions, HomeResults, HomeViewState>() {
@@ -29,20 +29,23 @@ class HomeViewModel @Inject constructor(
 
         when (action) {
 
-            is HomeActions.GetAttractionsPlaces -> {
-                handleGetAttractionsPlaces(action.currentLocation, this)
+            is HomeActions.GetCafePlaces -> {
+                handleGetPlaces(action.currentLocation, this, PlaceTypes.CAFE)
             }
 
-            is HomeActions.GetHistoricalPlaces -> {
-                handleGetHistoricalPlaces(action.currentLocation, this)
+            is HomeActions.GetMallPlaces -> {
+                handleGetPlaces(action.currentLocation, this,PlaceTypes.SHOPPING_MALL)
             }
 
             is HomeActions.GetHotelPlaces -> {
-                handleGetHotelPlaces(action.currentLocation, this)
+                handleGetPlaces(action.currentLocation, this,"hotel")
             }
 
             is HomeActions.GetRestaurantsPlaces -> {
-                handleGetRestaurantsPlaces(action.currentLocation, this)
+                handleGetPlaces(action.currentLocation, this,PlaceTypes.RESTAURANT)
+            }
+            is HomeActions.IdentifyPhoto -> {
+                val result = backEndServices.identifyMonument(action.file)
             }
 
             is HomeActions.GetCurrentLocation -> {
@@ -62,57 +65,17 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    private suspend fun handleGetAttractionsPlaces(
+    private suspend fun handleGetPlaces(
         currentLocation: LatLng,
-        collector: FlowCollector<HomeResults>
+        collector: FlowCollector<HomeResults>,
+        placesTypes: String
     ) {
-        collector.emit(HomeResults.AttractionsPlaces(CommonViewState(isLoading = true)))
+        collector.emit(HomeResults.GetPlaces(CommonViewState(isLoading = true)))
 
-        val result = nearBySearchUseCase(currentLocation, listOf(PlaceTypes.TOURIST_ATTRACTION))
+        val result = nearBySearchUseCase(currentLocation, listOf(placesTypes))
 
-        collector.emit(HomeResults.AttractionsPlaces(CommonViewState(data = result)))
+        collector.emit(HomeResults.GetPlaces(CommonViewState(data = result)))
 
     }
-
-    private suspend fun handleGetHistoricalPlaces(
-        currentLocation: LatLng,
-        collector: FlowCollector<HomeResults>
-    ) {
-        collector.emit(HomeResults.HistoricalPlaces(CommonViewState(isLoading = true)))
-
-        val result = nearBySearchUseCase(
-            currentLocation, listOf(
-                "museum",
-                "monument",
-            )
-        )
-
-        collector.emit(HomeResults.HistoricalPlaces(CommonViewState(data = result)))
-    }
-
-
-    private suspend fun handleGetHotelPlaces(
-        currentLocation: LatLng,
-        collector: FlowCollector<HomeResults>
-    ) {
-        collector.emit(HomeResults.HotelPlaces(CommonViewState(isLoading = true)))
-
-        val result = nearBySearchUseCase(currentLocation, listOf("hotel"))
-
-        collector.emit(HomeResults.HotelPlaces(CommonViewState(data = result)))
-
-    }
-
-    private suspend fun handleGetRestaurantsPlaces(
-        currentLocation: LatLng,
-        collector: FlowCollector<HomeResults>
-    ) {
-        collector.emit(HomeResults.RestaurantPLaces(CommonViewState(isLoading = true)))
-
-        val result = nearBySearchUseCase(currentLocation, listOf(PlaceTypes.RESTAURANT))
-
-        collector.emit(HomeResults.RestaurantPLaces(CommonViewState(data = result)))
-    }
-
 
 }

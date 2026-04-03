@@ -43,8 +43,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.components.AuthOutlinedTextField
-import com.rejowan.ccpc.Country
-import com.rejowan.ccpc.CountryCodePickerTextField
 import android.util.Patterns
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -74,36 +72,31 @@ fun SignUpScreen(
     val state by viewModel.viewStates.collectAsState()
 
 
-    var selectedCountry by remember { mutableStateOf(Country.UnitedStates) }
-
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
     var fullNameTouched by remember { mutableStateOf(false) }
     var emailTouched by remember { mutableStateOf(false) }
-    var phoneNumberTouched by remember { mutableStateOf(false) }
     var passwordTouched by remember { mutableStateOf(false) }
     var confirmPasswordTouched by remember { mutableStateOf(false) }
 
 
     val fieldsTouched by remember {
         derivedStateOf {
-            fullNameTouched && emailTouched && phoneNumberTouched && passwordTouched && confirmPasswordTouched
+            fullNameTouched && emailTouched &&  passwordTouched && confirmPasswordTouched
         }
     }
 
     var fullNameErr by remember { mutableStateOf(false) }
     var emailErr by remember { mutableStateOf(false) }
-    var phoneNumberErr by remember { mutableStateOf(false) }
     var passwordErr by remember { mutableStateOf(false) }
     var confirmPasswordErr by remember { mutableStateOf(false) }
 
     val signUpErr by remember {
         derivedStateOf {
-            fullNameErr || emailErr || phoneNumberErr || passwordErr || confirmPasswordErr || !fieldsTouched
+            fullNameErr || emailErr  || passwordErr || confirmPasswordErr || !fieldsTouched
         }
     }
 
@@ -198,7 +191,7 @@ fun SignUpScreen(
         topBar = {
             Row(
                 modifier = Modifier
-                    .padding(top = 18.dp, start = 24.dp, end = 24.dp)
+                    .padding(top = 40.dp, start = 24.dp, end = 24.dp)
             ) {
                 IconButton(onClick = {
                     navController.popBackStack()
@@ -267,50 +260,50 @@ fun SignUpScreen(
                 supportingText = "Invalid email"
             )
 
+            /*
+                        Text(
+                            modifier = Modifier.padding(top = 16.dp),
+                            color = colorResource(R.color.gray),
+                            text = stringResource(R.string.phone_number),
+                            fontSize = 12.sp,
+                        )
 
-            Text(
-                modifier = Modifier.padding(top = 16.dp),
-                color = colorResource(R.color.gray),
-                text = stringResource(R.string.phone_number),
-                fontSize = 12.sp,
-            )
+                     CountryCodePickerTextField(
+                            number = phoneNumber,
+                            onValueChange = { country, number, isValid ->
+                                selectedCountry = Country.findCountry(country)
+                                phoneNumber = number
+                                phoneNumberErr = !isValid
+                                phoneNumberTouched = true
+                            },
+                            selectedCountry = selectedCountry,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            trailingIcon = {
+                                if (phoneNumber.isNotEmpty()) {
+                                    IconButton(onClick = { phoneNumber = "" }) {
+                                        Icon(Icons.Default.Clear, "Clear")
+                                    }
+                                }
+                            },
+                            placeholder = {
+                                Text(
+                                    stringResource(R.string.enter_your_phone_number),
+                                    color = colorResource(R.color.gray)
+                                )
+                            },
+                            showError = true,
+                            showSheet = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = colorResource(R.color.white),
+                                unfocusedContainerColor = colorResource(R.color.white),
+                                focusedBorderColor = colorResource(R.color.stroke_gray),
+                                unfocusedBorderColor = colorResource(R.color.stroke_gray),
+                                errorContainerColor = colorResource(R.color.white),
 
-            CountryCodePickerTextField(
-                number = phoneNumber,
-                onValueChange = { country, number, isValid ->
-                    selectedCountry = Country.findCountry(country)
-                    phoneNumber = number
-                    phoneNumberErr = !isValid
-                    phoneNumberTouched = true
-                },
-                selectedCountry = selectedCountry,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                textStyle = MaterialTheme.typography.bodyLarge,
-                trailingIcon = {
-                    if (phoneNumber.isNotEmpty()) {
-                        IconButton(onClick = { phoneNumber = "" }) {
-                            Icon(Icons.Default.Clear, "Clear")
-                        }
-                    }
-                },
-                placeholder = {
-                    Text(
-                        stringResource(R.string.enter_your_phone_number),
-                        color = colorResource(R.color.gray)
-                    )
-                },
-                showError = true,
-                showSheet = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = colorResource(R.color.white),
-                    unfocusedContainerColor = colorResource(R.color.white),
-                    focusedBorderColor = colorResource(R.color.stroke_gray),
-                    unfocusedBorderColor = colorResource(R.color.stroke_gray),
-                    errorContainerColor = colorResource(R.color.white),
-
-                    ),
-            )
+                                ),
+                        )*/
 
             AuthOutlinedTextField(
                 title = stringResource(R.string.password),
@@ -387,7 +380,6 @@ fun SignUpScreen(
                         SignUpRequest(
                             fullName = fullName,
                             email = email,
-                            phoneNumber = phoneNumber,
                             password = password
                         )
                     )

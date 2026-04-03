@@ -1,12 +1,12 @@
 package com.besha.egyptguide.features.maps.presentaion.screen
 
 import android.Manifest
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,23 +18,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.besha.egyptguide.R
 import com.besha.egyptguide.features.maps.presentaion.components.NearbyPlacesSheet
 import com.besha.egyptguide.features.maps.presentaion.components.SelectedPlacesSheet
 import com.besha.egyptguide.features.maps.presentaion.viewmodel.MapsActions
 import com.besha.egyptguide.features.maps.presentaion.viewmodel.MapsViewModel
-import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.PlaceTypes
 import com.google.maps.android.compose.*
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,8 +81,14 @@ fun MapsScreen(
         if (!state.nearByPlaces.data.isNullOrEmpty()) {
             scaffoldState.bottomSheetState.expand()
             state.currentLocation.data?.let { latLng ->
+
+                val offsetLatLng = LatLng(
+                    latLng.latitude - 0.01,   // move camera target slightly north
+                    latLng.longitude
+                )
+
                 cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(latLng, 12f),
+                    CameraUpdateFactory.newLatLngZoom(offsetLatLng, 12f),
                     durationMs = 800
                 )
             }
@@ -103,7 +107,6 @@ fun MapsScreen(
                 CameraUpdateFactory.newLatLngZoom(latLng, 16f),
                 durationMs = 800
             )
-            Log.d("TAG", "MapsScreen: ${state.selectedPlace.data}")
         }
         if (state.selectedPlace.data == null && state.nearByPlaces.data.isNullOrEmpty() && scaffoldState.bottomSheetState.isVisible) {
 
@@ -184,7 +187,7 @@ fun MapsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(top = 40.dp),
             ) {
 
                 TextField(
@@ -199,6 +202,7 @@ fun MapsScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
                         .height(56.dp)
                         .onFocusChanged {
                             isSearchFocused = it.isFocused
@@ -233,11 +237,12 @@ fun MapsScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 state.predictions.data?.let { predictionsList ->
-                    if (isSearchFocused && predictionsList.isNotEmpty()) {
+                    if (state.query.isNotEmpty()) {
 
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
                                 .heightIn(max = 300.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -323,9 +328,88 @@ fun MapsScreen(
                                 }
                             }
                         }
+                    }else{
+                        MapsGenreList{
+
+                            state.currentLocation.data?.let {location ->
+                                viewModel.executeAction(MapsActions.NearBySearch(location, listOf(it)))
+
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
+
+
+
+
+@Composable
+fun MapsGenreList(onCardClick:(String)->Unit) {
+
+
+    val genreList = listOf(
+        GenreIconListItem( "Hotels", R.drawable.hotels_ic, "hotel"),
+        GenreIconListItem( "Restaurants", R.drawable.restaurant_ic,PlaceTypes.RESTAURANT),
+        GenreIconListItem( "Cafes", R.drawable.cafe_ic, PlaceTypes.CAFE),
+        GenreIconListItem( "Malls", R.drawable.mall_ic, PlaceTypes.SHOPPING_MALL),
+        GenreIconListItem( "Gas stations", R.drawable.gas_ic, PlaceTypes.GAS_STATION),
+        GenreIconListItem( "Hospitals", R.drawable.hospital_ic, PlaceTypes.HOSPITAL),
+        GenreIconListItem( "Churches", R.drawable.church_ic, PlaceTypes.CHURCH),
+        GenreIconListItem( "Mosques", R.drawable.mosque_ic, PlaceTypes.MOSQUE),
+    )
+
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth().padding(top = 8.dp,start = 8.dp, end = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+    ) {
+
+        items(genreList) { genre ->
+
+
+            Card(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .clickable(onClick = {
+                    onCardClick(genre.placeTypes)
+                    }
+                ),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = colorResource(R.color.off_white))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+
+
+                ) {
+
+                    Icon(
+                        painter = painterResource(id = genre.icon),
+                        contentDescription = genre.title,
+                        modifier = Modifier
+                            .size(16.dp),
+                        tint = Color.Black
+                    )
+
+                    Text(
+                        text = genre.title,
+                        modifier = Modifier
+                    )
+                }
+            }
+        }
+    }
+}
+
+data class GenreIconListItem(
+    val title: String,
+    val icon: Int,
+    val placeTypes: String
+)

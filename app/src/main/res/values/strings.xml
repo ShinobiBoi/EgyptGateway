@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">egyptguide</string>
+    <string name="app_name">Egypt Gateway</string>
     <string name="google_web_client_id">177594054754-083m9653m635qock7akkp0chhvkmglp4.apps.googleusercontent.com</string>
 
 
@@ -36,6 +36,8 @@
     <string name="nearby_places">Nearby Places</string>
     <string name="selected_place">Selected Place</string>
     <string name="near_by_locations">Near By Locations</string>
+    <string name="tourist_attraction">Tourist attraction</string>
+    <string name="attractions_you_can_t_miss">Attractions you can\'t miss</string>
 
 
 </resources>

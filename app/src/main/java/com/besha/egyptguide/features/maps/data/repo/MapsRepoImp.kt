@@ -16,7 +16,6 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.Place
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -47,6 +46,13 @@ class MapsRepoImp @Inject constructor (private val mapsRemoteClient: MapsRemoteC
     ): List<MyPlace> {
         return mapsRemoteClient.searchByText(currentLocation,query)
 
+    }
+
+    override suspend fun nearBySearch(
+        currentLocation: LatLng,
+        types: List<String>
+    ): List<MyPlace> {
+        return mapsRemoteClient.nearBySearch(currentLocation,types)
     }
 
     private val fusedLocationClient: FusedLocationProviderClient by lazy {

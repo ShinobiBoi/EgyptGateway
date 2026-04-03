@@ -28,6 +28,9 @@ sealed class ScreenResources {
     object HomeRoute : ScreenResources()
 
     @Serializable
+    object CalendarRoute : ScreenResources()
+
+    @Serializable
     object ExploreRoute : ScreenResources()
 
 

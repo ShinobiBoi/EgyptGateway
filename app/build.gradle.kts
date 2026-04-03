@@ -94,25 +94,15 @@ dependencies {
     implementation(libs.retrofit)
     implementation (libs.converter.gson)
 
+    implementation("com.kizitonwose.calendar:compose:2.10.0")
     //coil
     implementation(libs.coil.compose)
 
-    implementation(libs.glide)
+    //implementation(libs.glide)
 
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockk)
-
     implementation(libs.androidx.material.icons.extended)
-
-
-    implementation("com.github.ahmmedrejowan:CountryCodePickerCompose:0.2")
-
-
-    //implementation("com.stevdza-san:countrypicker-android:1.0.4")
-
-
-
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

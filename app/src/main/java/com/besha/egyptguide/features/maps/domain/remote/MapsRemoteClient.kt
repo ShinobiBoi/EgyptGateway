@@ -14,4 +14,6 @@ interface MapsRemoteClient {
 
 
     suspend fun searchByText(currentLocation: LatLng,query : String): List<MyPlace>
+
+     suspend fun nearBySearch(currentLocation: LatLng, types: List<String>): List<MyPlace>
 }

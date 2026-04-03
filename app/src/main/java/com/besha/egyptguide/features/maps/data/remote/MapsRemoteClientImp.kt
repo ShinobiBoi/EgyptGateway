@@ -12,6 +12,7 @@ import com.google.android.libraries.places.api.net.FetchResolvedPhotoUriRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.api.net.SearchByTextRequest
+import com.google.android.libraries.places.api.net.SearchNearbyRequest
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -103,6 +104,40 @@ class MapsRemoteClientImp @Inject constructor(private val placesClient: PlacesCl
 
 
 
+    override suspend fun nearBySearch(
+        currentLocation: LatLng,
+        types: List<String>,
+    ): List<MyPlace> {
+
+        val fields = listOf(
+            Place.Field.ID,
+            Place.Field.DISPLAY_NAME,
+            Place.Field.FORMATTED_ADDRESS,
+            Place.Field.LOCATION
+        )
+
+        val circle = CircularBounds.newInstance(currentLocation, 5000.0)
+
+        val request = SearchNearbyRequest.builder(circle, fields)
+            .setIncludedTypes(types)
+            .setMaxResultCount(10)
+            .build()
+
+        val result = placesClient.searchNearby(request).await()
+
+        return coroutineScope {
+
+            result.places.map { place ->
+
+                async {
+                    mapPlaceToMyPlace(place, fetchPhoto = false)
+                }
+            }.awaitAll()
+        }
+    }
+
+
+
     private suspend fun mapPlaceToMyPlace(
         place: Place,
         fetchPhoto: Boolean = false
@@ -112,7 +147,6 @@ class MapsRemoteClientImp @Inject constructor(private val placesClient: PlacesCl
             place.photoMetadatas
                 ?.firstOrNull()
                 ?.let { metadata ->
-
                     try {
                     val resolvedResponse = placesClient
                         .fetchResolvedPhotoUri(
@@ -130,6 +164,16 @@ class MapsRemoteClientImp @Inject constructor(private val placesClient: PlacesCl
                 }
         } else {
             null
+        }
+
+        var governorate = ""
+        place.addressComponents?.asList()?.forEach {component ->
+
+            if (component.types.contains("administrative_area_level_1")) {
+                governorate = component.name
+
+            }
+
         }
 
         return MyPlace(

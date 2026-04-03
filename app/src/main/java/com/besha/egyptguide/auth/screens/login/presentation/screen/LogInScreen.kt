@@ -1,17 +1,12 @@
 package com.besha.egyptguide.auth.screens.login.presentation.screen
 
 import android.app.Activity
-import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,7 +25,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -191,7 +185,7 @@ fun LogInScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 24.dp, start = 24.dp, end = 24.dp)
+            .padding(top = 40.dp, start = 24.dp, end = 24.dp)
     ) {
         Text(
             modifier = Modifier.padding(end = 24.dp),

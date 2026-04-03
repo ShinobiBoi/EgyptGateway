@@ -37,7 +37,7 @@ class HomeRemoteClientImp  @Inject constructor(private val placesClient: PlacesC
 
         val request = SearchNearbyRequest.builder(circle, fields)
             .setIncludedTypes(types)
-            .setMaxResultCount(10)
+            .setMaxResultCount(3)
             .build()
 
         val result = placesClient.searchNearby(request).await()

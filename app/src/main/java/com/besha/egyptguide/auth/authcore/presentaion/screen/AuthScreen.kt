@@ -35,11 +35,11 @@ fun AuthScreen(rootController: NavController) {
 
         LaunchedEffect(state.isLoggedIn){
             if (state.isLoggedIn){
-
                 rootController.navigate(ScreenResources.MainRoute) {
                     popUpTo(ScreenResources.AuthRoute) { inclusive = true }
                     launchSingleTop = true
                 }
+
             }
         }
 

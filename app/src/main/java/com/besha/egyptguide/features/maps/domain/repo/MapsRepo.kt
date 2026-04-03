@@ -4,7 +4,6 @@ import com.besha.egyptguide.appcore.data.model.MyPlace
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.Place
 import kotlinx.coroutines.flow.Flow
 
 interface MapsRepo {
@@ -14,7 +13,10 @@ interface MapsRepo {
 
 
     suspend fun searchByText(currentLocation: LatLng,query : String): List<MyPlace>
-     fun getCurrentLocationFlow(): Flow<LatLng>
+
+    suspend fun nearBySearch(currentLocation: LatLng, types: List<String>): List<MyPlace>
+
+    fun getCurrentLocationFlow(): Flow<LatLng>
 
 
 }

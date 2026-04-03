@@ -33,6 +33,7 @@ data class BottomNavItem(
 val navItems = listOf(
     BottomNavItem(route = ScreenResources.HomeRoute, label = "Explore", icon = R.drawable.baseline_explore_24),
     BottomNavItem(route = ScreenResources.MapsRoute, label = "Map", icon = R.drawable.maps_svg),
+    BottomNavItem(route = ScreenResources.CalendarRoute, label = "Calendar", icon = R.drawable.calendar_ic),
     BottomNavItem(route = ScreenResources.ProfileRoute, label = "Profile", icon = R.drawable.outline_person_24),
 )
 

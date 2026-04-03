@@ -1,10 +1,8 @@
 package com.besha.egyptguide.features.maps.presentaion.viewmodel
 
-import android.content.Context
 import com.besha.egyptguide.appcore.mvi.Action
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.Place
 
 sealed class MapsActions() : Action {
 
@@ -16,6 +14,8 @@ sealed class MapsActions() : Action {
     object EmptySelectedPlace : MapsActions()
 
     data class SearchByText(val currentLocation: LatLng, val query : String) : MapsActions()
+
+    data class NearBySearch(val currentLocation: LatLng, val types: List<String>) : MapsActions()
 
     object EmptyNearBySearch : MapsActions()
 

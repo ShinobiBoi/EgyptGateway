@@ -35,7 +35,6 @@ class GoogleAuthClient  @Inject constructor(
 
 
     private val auth = Firebase.auth
-    private val firestore = FirebaseFirestore.getInstance()
 
     private val credentialManager= CredentialManager.create(context)
 
@@ -114,25 +113,6 @@ class GoogleAuthClient  @Inject constructor(
 
             val user = auth.currentUser ?: throw IllegalStateException("User creation failed")
             user.sendEmailVerification().await()
-
-
-
-            val userData =
-                hashMapOf(
-                    "uid" to user.uid,
-                    "email" to signUpRequest.email,
-                    "fullName" to signUpRequest.fullName,
-                    "phoneNumber" to signUpRequest.phoneNumber,
-                    "emailVerified" to user.isEmailVerified,
-                )
-
-
-            firestore
-                .collection("users")
-                .document(user.uid)
-                .set(userData)
-                .await()
-
 
 
             SignUpResponse(
