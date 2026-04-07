@@ -14,34 +14,22 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.besha.egyptguide.R
-import com.besha.egyptguide.features.maps.presentaion.screen.GenreIconListItem
-import com.google.android.libraries.places.api.model.PlaceTypes
+import com.besha.egyptguide.features.home.data.constants.GenreType
 
 
 @Composable
 fun HomeGenreList(
     modifier: Modifier = Modifier,
-    onCardClick: (GenreIconListItem) -> Unit
+    selectedGenre: GenreType = GenreType.HOTELS,
+    onCardClick: (GenreType) -> Unit
 ) {
 
-    val genreList = listOf(
-        GenreIconListItem("Hotels", R.drawable.hotels_ic, "hotels"),
-        GenreIconListItem("Restaurant", R.drawable.restaurant_ic, PlaceTypes.RESTAURANT),
-        GenreIconListItem("Cafe", R.drawable.cafe_ic, PlaceTypes.CAFE),
-        GenreIconListItem("Mall", R.drawable.mall_ic, PlaceTypes.SHOPPING_MALL),
-    )
 
-    var selectedIndex by remember { mutableStateOf(0) }
 
     Row(
         modifier = modifier
@@ -50,16 +38,16 @@ fun HomeGenreList(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        genreList.forEachIndexed { index, genre ->
+        val genres = listOf(GenreType.HOTELS, GenreType.RESTAURANT, GenreType.CAFE, GenreType.MALL)
 
-            val isSelected = index == selectedIndex
+        genres.forEach {  genre ->
+            val isSelected = selectedGenre == genre
 
             Card(
                 modifier = Modifier
                     .weight(1f)
                     .height(84.dp)
                     .clickable {
-                        selectedIndex = index
                         onCardClick(genre)
                     },
                 shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),

@@ -19,7 +19,11 @@ import com.google.android.gms.maps.model.LatLng
 
 
 @Composable
-fun PlacesHorizontalList(places: CommonViewState<List<MyPlace>>,location: LatLng?) {
+fun PlacesHorizontalList(
+    places: CommonViewState<List<MyPlace>>,
+    location: LatLng?,
+    onPlaceClick: (MyPlace) -> Unit = {}
+) {
 
     Column(modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -41,7 +45,8 @@ fun PlacesHorizontalList(places: CommonViewState<List<MyPlace>>,location: LatLng
                     items(places) { place ->
                         NearbyPlaceCard(
                             place = place,
-                            modifier = Modifier.width(300.dp)
+                            modifier = Modifier.width(300.dp),
+                            onClick = onPlaceClick
                         )
                     }
                 }

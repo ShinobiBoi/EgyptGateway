@@ -1,6 +1,7 @@
 package com.besha.egyptguide.features.maps.presentaion.viewmodel
 
 
+import android.util.Log
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
 import com.besha.egyptguide.features.maps.domain.usecases.CurrentLocationUseCase
@@ -133,6 +134,8 @@ class MapsViewModel @Inject constructor(
 
         } else {
             val place = setPlaceUseCase(placeId, sessionToken)
+
+            Log.d("TAG",place.imageUri.toString())
             collector.emit(MapsResults.SelectedPlace(CommonViewState(data = place)))
             collector.emit(MapsResults.refreshToken(null))
 

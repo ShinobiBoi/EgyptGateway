@@ -16,10 +16,8 @@ sealed class ScreenResources {
     @Serializable
     object SplashRoute : ScreenResources()
 
-
     @Serializable
     object AuthRoute : ScreenResources()
-
 
     @Serializable
     object MainRoute : ScreenResources()
@@ -33,19 +31,46 @@ sealed class ScreenResources {
     @Serializable
     object ExploreRoute : ScreenResources()
 
-
     @Serializable
     object MapsRoute : ScreenResources()
 
     @Serializable
     object ProfileRoute : ScreenResources()
 
+    @Serializable
+    data class PlaceDetailsRoute(
+        val id: String? = null,
+        val displayName: String? = null,
+        val formattedAddress: String? = null,
+        val imageUri: String? = null,
+        val lat: Double = 0.0,
+        val lng: Double = 0.0
+    ) : ScreenResources()
 
+    @Serializable
+    data class QuizRoute(
+        val id: String? = null,
+        val name: String? = null,
+    ) : ScreenResources()
 
-
-
-
-
-
-
+    companion object {
+        fun fromRoute(route: String): ScreenResources? {
+            return when {
+                route.contains(LoginRoute::class.qualifiedName ?: "") -> LoginRoute
+                route.contains(SignUpRoute::class.qualifiedName ?: "") -> SignUpRoute
+                route.contains(ForgotPassword::class.qualifiedName ?: "") -> ForgotPassword
+                route.contains(SplashRoute::class.qualifiedName ?: "") -> SplashRoute
+                route.contains(AuthRoute::class.qualifiedName ?: "") -> AuthRoute
+                route.contains(MainRoute::class.qualifiedName ?: "") -> MainRoute
+                route.contains(HomeRoute::class.qualifiedName ?: "") -> HomeRoute
+                route.contains(CalendarRoute::class.qualifiedName ?: "") -> CalendarRoute
+                route.contains(ExploreRoute::class.qualifiedName ?: "") -> ExploreRoute
+                route.contains(MapsRoute::class.qualifiedName ?: "") -> MapsRoute
+                route.contains(ProfileRoute::class.qualifiedName ?: "") -> ProfileRoute
+                route.contains(PlaceDetailsRoute::class.qualifiedName ?: "") -> PlaceDetailsRoute()
+                route.contains(QuizRoute::class.qualifiedName ?: "") -> QuizRoute()
+                else -> null
+            }
+        }
+    }
 }

@@ -29,23 +29,14 @@ class HomeViewModel @Inject constructor(
 
         when (action) {
 
-            is HomeActions.GetCafePlaces -> {
-                handleGetPlaces(action.currentLocation, this, PlaceTypes.CAFE)
-            }
-
-            is HomeActions.GetMallPlaces -> {
-                handleGetPlaces(action.currentLocation, this,PlaceTypes.SHOPPING_MALL)
-            }
-
-            is HomeActions.GetHotelPlaces -> {
-                handleGetPlaces(action.currentLocation, this,"hotel")
-            }
-
-            is HomeActions.GetRestaurantsPlaces -> {
-                handleGetPlaces(action.currentLocation, this,PlaceTypes.RESTAURANT)
-            }
             is HomeActions.IdentifyPhoto -> {
-                val result = backEndServices.identifyMonument(action.file)
+                emit(HomeResults.IdentifyPhoto(CommonViewState(isLoading = true)))
+                try {
+                    val result = backEndServices.identifyMonument(action.file)
+                    emit(HomeResults.IdentifyPhoto(CommonViewState(data = result)))
+                } catch (e: Exception) {
+                    emit(HomeResults.IdentifyPhoto(CommonViewState(errorThrowable = e)))
+                }
             }
 
             is HomeActions.GetCurrentLocation -> {
@@ -59,7 +50,19 @@ class HomeViewModel @Inject constructor(
                 }
             }
 
+            is HomeActions.SelectGenre -> {
+                emit(HomeResults.SelectGenre(action.genre))
+                
+                val placeType = when (action.genre.placeTypes) {
+                    "hotels" -> "hotel"
+                    else -> action.genre.placeTypes
+                }
+                handleGetPlaces(action.location, this, placeType)
+            }
 
+            is HomeActions.ResetIdentificationResult -> {
+                emit(HomeResults.ResetIdentificationResult)
+            }
         }
 
     }

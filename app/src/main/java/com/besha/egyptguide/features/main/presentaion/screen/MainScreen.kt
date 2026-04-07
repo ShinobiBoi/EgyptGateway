@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -12,26 +13,40 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.besha.egyptguide.appcore.navigation.ScreenResources
 import com.besha.egyptguide.features.calendar.CalendarScreen
 import com.besha.egyptguide.features.home.presenation.screen.HomeScreen
 import com.besha.egyptguide.features.main.presentaion.components.CustomBottomNavigationBar
 import com.besha.egyptguide.features.main.presentaion.viewmodel.BottomNavViewModel
 import com.besha.egyptguide.features.maps.presentaion.screen.MapsScreen
+import com.besha.egyptguide.features.placedetails.presentation.screen.PlaceDetailsScreen
 import com.besha.egyptguide.features.profile.presenation.screen.ProfileScreen
+import com.besha.egyptguide.features.quiz.presentation.screen.QuizScreen
 
 @Composable
 fun MainScreen(rootController: NavController) {
-
 
 
     val navController = rememberNavController()
     val bottomNavViewModel = hiltViewModel<BottomNavViewModel>()
     val currentRoute by bottomNavViewModel.currentRoute.collectAsState()
 
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { backStackEntry ->
+            val route = backStackEntry.destination.route
+            route?.let {
+                ScreenResources.fromRoute(it)?.let { screen ->
+                    bottomNavViewModel.onRouteSelected(screen)
+                }
+            }
+        }
+    }
+
 
     Scaffold(
         bottomBar = {
+            if (currentRoute !is ScreenResources.QuizRoute && currentRoute !is ScreenResources.PlaceDetailsRoute)
             CustomBottomNavigationBar(currentRoute) { selectedRoute ->
                 if (selectedRoute != currentRoute) {
                     bottomNavViewModel.onRouteSelected(selectedRoute)
@@ -54,12 +69,35 @@ fun MainScreen(rootController: NavController) {
         ) {
             composable<ScreenResources.HomeRoute> {
                 HomeScreen(
-
+                    onPlaceClick = { place ->
+                        navController.navigate(
+                            ScreenResources.PlaceDetailsRoute(
+                                id = place.id,
+                                displayName = place.displayName,
+                                formattedAddress = place.formattedAddress,
+                                imageUri = place.imageUri?.toString(),
+                                lat = place.location?.latitude ?: 0.0,
+                                lng = place.location?.longitude ?: 0.0
+                            )
+                        )
+                    },
+                    onNavigateToQuiz = { monumentId, monumentName ->
+                        navController.navigate(
+                            ScreenResources.QuizRoute(
+                                id = monumentId,
+                                name = monumentName
+                            )
+                        )
+                    }
                 )
             }
             composable<ScreenResources.MapsRoute> {
 
-                MapsScreen()
+                MapsScreen() { screenRoute ->
+                    navController.navigate(
+                        screenRoute
+                    )
+                }
 
             }
             composable<ScreenResources.CalendarRoute> {
@@ -70,10 +108,25 @@ fun MainScreen(rootController: NavController) {
             }
             composable<ScreenResources.ProfileRoute> {
 
-                ProfileScreen(rootController,navController)
+                ProfileScreen(rootController, navController)
 
             }
 
+            composable<ScreenResources.PlaceDetailsRoute> { backStackEntry ->
+                val placeDetails: ScreenResources.PlaceDetailsRoute = backStackEntry.toRoute()
+                PlaceDetailsScreen(
+                    place = placeDetails,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
+            composable<ScreenResources.QuizRoute> { backStackEntry ->
+                val quiz: ScreenResources.QuizRoute = backStackEntry.toRoute()
+                QuizScreen(
+                    monument = quiz,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
         }
     }
 }

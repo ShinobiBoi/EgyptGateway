@@ -1,5 +1,6 @@
 package com.besha.egyptguide.features.home.presenation.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,12 +29,13 @@ import com.besha.egyptguide.appcore.data.model.MyPlace
 
 
 @Composable
-fun NearbyPlaceCard(place: MyPlace, modifier: Modifier = Modifier) {
+fun NearbyPlaceCard(place: MyPlace, modifier: Modifier = Modifier, onClick: (MyPlace) -> Unit = {}) {
 
     Card(
         modifier = modifier
             .padding(horizontal = 8.dp)
-            .height(260.dp),
+            .height(260.dp)
+            .clickable { onClick(place) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(

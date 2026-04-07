@@ -3,22 +3,32 @@ package com.besha.egyptguide.features.home.presenation.screen
 import android.Manifest
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -40,6 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.besha.egyptguide.R
@@ -48,10 +60,11 @@ import com.besha.egyptguide.features.home.presenation.viewmodel.HomeActions
 import com.besha.egyptguide.features.home.presenation.viewmodel.HomeViewModel
 import com.google.android.gms.maps.model.LatLng
 import androidx.core.net.toUri
+import com.besha.egyptguide.appcore.navigation.ScreenResources
+import com.besha.egyptguide.features.home.data.constants.GenreType
 import com.besha.egyptguide.features.home.presenation.components.HomeBanner
 import com.besha.egyptguide.features.home.presenation.components.HomeGenreList
 import com.besha.egyptguide.features.home.presenation.components.PlacesHorizontalList
-import com.google.android.libraries.places.api.model.PlaceTypes
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -59,7 +72,13 @@ import java.io.File
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onPlaceClick: (MyPlace) -> Unit,
+    onNavigateToQuiz: (String, String) -> Unit
+) {
+
+    val viewModel = hiltViewModel<HomeViewModel>()
+    val state by viewModel.viewStates.collectAsState()
 
     val pagerState = rememberPagerState(pageCount = { 10 })
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
@@ -72,22 +91,24 @@ fun HomeScreen() {
     }
 
 
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-
     val context = LocalContext.current
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        selectedImageUri = uri
+        uri?.let {
+            viewModel.executeAction(HomeActions.IdentifyPhoto(uriToMultipart(context, it)))
+        }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            selectedImageUri = cameraUri
+            cameraUri?.let {
+                viewModel.executeAction(HomeActions.IdentifyPhoto(uriToMultipart(context, it)))
+            }
         }
     }
 
@@ -97,76 +118,73 @@ fun HomeScreen() {
             displayName = "Giza Necropolis",
             formattedAddress = "Al Haram, Giza",
             location = LatLng(29.977296199999998, 31.132495499999997),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHTs79nKF_Ci53fecc1SDIU_pKslB1dowWA-6-LrcEQ84HEpx7urXmpLdyGEZJwlK3yYfQuBktC1XBTR_L9j6G2ThMn95X9wi3Ks0SHPUkqEVnsZklItA_blnuBORtuz7wWTvOPSCsFqEBkXw=s4800-w4800-h4408".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNEatBUyzhDFadPP7cvGQOARkSFMGDTsBwlLZP6-mKyv3gBSi0C-68a1KpzB24XGWEQkklMzwJr0pCphL6OH9XDtCWVe7ELzdOjtCJmSqJl7IScS4rR6B1fQV8YyQmIq1W_zq_ta4-bN8z1mYg=s4800-w4800-h4408".toUri()
         ),
         MyPlace(
             id = "ChIJeamuo2JPWBQRqb1mQKbw08k",
             displayName = "Great Sphinx of Giza",
             formattedAddress = "Al Haram, Giza",
             location = LatLng(29.9752687, 31.1375674),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNEeW1LMSp4BhK7CxcITKqQzy82zSD02gKNvaI18TaswMFsrDiw_Ht5snGPa1sLtU25eANaUEm9ilashVAuGCHHQAGW-FfpJLhq5vfed3UGR2P9Vio4tSgNEfSra1lHBX5A9cvqFayfZ02TL=s4800-w4000-h3000".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNFcj1GIVtAE8JOKHqyr18BoLAtlYYliwHdys5dzXBx6xbObpl8Yuo8wgeUN454nS-9QUoraFl0H5OTDwwLXSzxXJU4PcvtO53Yy2wrZad6BthTB6goi51_wWAXTV2hIuPaznud5B6Xr1fWU=s4800-w4000-h3000".toUri()
         ),
         MyPlace(
             id = "ChIJzcD-KJIVSRQR2FnCCMDoGsc",
             displayName = "Karnak",
             formattedAddress = "Karnak, Luxor",
             location = LatLng(25.718834599999997, 32.6572703),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNGpUEBYi6BrzXCEHSVUxFDvmfqsasbQini4nSVirXlyej8YA929CwnO700XuhMTcB9HL4M6pHkEJWX5y81MkWVNTrSlxgYjC4gpLaVMPcj-hqx-qIFlEv4UEb2rzlpdm0f7pNUWA-hVMThI9w=s4800-w4032-h3024".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNF2M270t3nxP591aJcMzhjeuoaYEs73MTcv9zJA-8RYuD4gIv-IHDLEsoXXk-7d_oqHy-qg2_OO7lXxGENj36UXiOKidV8Db4261wuY0CyReWqborFGbp96Qu6N9BvQFkVf-CEwDKKN19stNw=s4800-w4800-h2703".toUri()
         ),
         MyPlace(
             id = "ChIJ1_7etYo9SRQR2qnjovbMj3E",
             displayName = "Valley of the Kings",
             formattedAddress = "Luxor, Luxor",
             location = LatLng(25.7401643, 32.601411),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHfcPPIErOnbvCM0uIuuY_Fcr9cMgr-9tk6mryibZc5cmTpsnYix8Kwsiv-uGxYI1NzXD2NfdTwnVvNCYmb78OtgaXzjVvKCUvrEoSa6773M-nmC2WusqDSz9FlkTNDt3SSxYmREgxGSida5Mc=s4800-w4000-h3000".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNG6hMc4UtNtnW8FR9cAAh4B5Jjj8PsbaSBvjwOFBpZxP1cRxMmsqDuVOELraXd4Zbth0b69acUk7gsH7epIf3W3QDOcEzqUA_6EgF0tv5mu_7mXTwB0iT83j5WQ25m_3blmXwh1M887R7DObak=s4800-w4000-h3000".toUri()
         ),
         MyPlace(
             id = "ChIJ3ae_xxgWSRQR07VjFXrhHwM",
             displayName = "Mortuary Temple of Hatshepsut",
             formattedAddress = "Al Qarna, Luxor",
             location = LatLng(25.738277300000004, 32.6064906),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHFK1z45jyqMi5nfkeXML3B3uknXorhCq6u7aA12CUHdh8NwyYY7S66SNXmCWsSBkvS_fJzXN7Q39KyI3uoRhaPhgKz1ao3jHz8MZbrVipg9Xj3P7RRphNKjj3uuOrEnglf-Nku5NG-ta-b=s4800-w2048-h1431".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNEXKpFDPRl-jQokI1gAQtmCo-IwPVTn1nOzKB1U5DMMh_-aKhvHv7n5tPkczYztGKQc41gdiTA37-5lWZrH1JlTsviluz9C1lunsdZV3lY1FQKy5SBz4jtne3JyOkO5BkVQNZMdoCAIdUO-=s4800-w2048-h1431".toUri()
         ),
         MyPlace(
             id = "ChIJn1b3gKpAWBQRbsg1WfPe1NA",
             displayName = "Mosque of Muhammad Ali",
             formattedAddress = "Saladin, Cairo",
             location = LatLng(30.0290456, 31.259796599999998),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHH6_RKeEJW5fB6PYoAbN-g_yZpRFgESGrAo_-wqJ13sZOOrbVM85B95hjXOKEzwovfO2bd_iNdm8v2f94pq-tjYdZzbAakcH3T7sFFaJL4ekvhjICBVHZL26nDQPLkOYO-FOgOq3S2BWwtcQ=s4800-w2689-h2477".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNGrKfZ6u7GSjz8wynKGA2PP--QJrPafX5BAZ2FXug_4t_BzmhffBczaKsC5gNg9JAV4bkL_nDjs4KApE6TlcLf_6WhM_qFJreAAPZ2CLmoUehc0Tl-FJbcdVZhtmQwRlmKXrpm1TApX7C7aTQ=s4800-w2689-h2477".toUri()
         ),
         MyPlace(
             id = "ChIJn3WoRhBHWBQRuhsCgung4tQ",
             displayName = "Hanging Church",
             formattedAddress = "Old Cairo, Cairo",
             location = LatLng(30.0052389, 31.2301689),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNH_J_S4OQOnVnwiuzw0baAuhc289z6lFaqw5zwNXBtCvk9j3k3r3gVBPvg6t46bXRFlV1Pdcc2HuX-i-0mub6ZNzPBLQMe8oPdUNd5kNGQXCQZnhvobc9N3A87uQvVx6ngCq46IiRfRspB_sf4=s4800-w529-h398".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHlonKRFOHn9n9NXIVh5cORHE7uaOWz99FsDiD7GZZVHn4oCGpRyCGLiPv4L6tbk3hIyOzCrlE3q6L0zSMzxqWapzkSFAqB4HD4xnJO3TQlKxKo8mjwOxUPN3evpV5-TiZKPRbk8OG7QOp72XM=s4800-w529-h398".toUri()
         ),
         MyPlace(
             id = "ChIJuxEpKFLD9RQRHz2y-AiDn-U",
             displayName = "Qaitbay Citadel",
             formattedAddress = "Al Gomrok, Alexandria ",
             location = LatLng(31.213698700000002, 29.8853921),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNEdOFZSryJLlEVUp4crTjTnwaXpmgFbHrdkhmvEl0Lcv7NYFZlVDEPL05t_EaLbGGHZLte0yGjmkHuGRhvLv93gPy4U2vJxM-Od4yy7HlfrYDWbTPpGVQ2duaKPBLDoHWNgshsyCgUVRR5cIA=s4800-w4800-h3600".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHmtW_yPXAw9S30ReqCzifsU_ezWNHJJIg008EM1JLjCi6MbVUjlIsAkPpol5U6W1-XgjKjjQQx8AP13lD4RryzeeNsNCva3fDhK23whJqOkMVhhfIvHxaRiO23dHg1Pl-EatSrbYsY0TJdzQ=s4800-w4800-h3600".toUri()
         ),
         MyPlace(
             id = "ChIJuXeJLNtiNhQReOUrg0ms8pk",
             displayName = "Philae Temple",
             formattedAddress = "Aswan 1, Aswan",
             location = LatLng(24.025583599999997, 32.8841021),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNFsI17xNawXiX8J8maxEy7QHda11H3K7bK0Z0YGWYnP73-SF5EGUbSiSxh59dl0XKu4vvwXKhnhjBRZjinDCUEeIe4axcgvzsmipx9bvSyBX9JEUuqYBNQUPBlY-6jSX5NacPdVexVYLS-YyA=s4800-w4032-h3024".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNEeqOoUcCMhDEu2pGxrpEQ12sTRs72dGrXctov5LIkQMqlILwATH2q_VocAyg23x-vv3YAQ000Z93xqLk-Tn5OmV8VEV3FDRpBRtxCFGR8FwbD8eHxWK4m4s7TF_vvZuNC-umJmAzwjySvKnQ=s4800-w4032-h3024".toUri()
         ),
         MyPlace(
             id = "ChIJWwUmsYipOhQR0pj4GGbM06c",
             displayName = "Abu Simbel Temples",
             formattedAddress = "Abu Simbel, Aswan",
             location = LatLng(22.3372319, 31.625798999999997),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHqdmKD6AvN9mShclZ7s6HE_en5qWOCW9q3H8D78bMQnD5z9LYqHopMcWRbjqoeg1phqRTs8zOuSg5LLytxLE5yRfgm3DxC6zJXLrod80bm-VT21LF5SXSiXwXnyWn0rerEtQ8jnpD8Z-6MpA=s4800-w4800-h3614".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNFYQhsJpbd-n4O1yUZw6hX16NJj2pda_BVDZiN3yvgZXchBWxY4_e0ll8215F8OvfixgIVVbSYUcD7oSZ0jo7MWGu1yoN9PAm78I-tNYgQGK21t94XbQ_yo3bJwX9YaJGKJoTgdKlu5qZbB7w=s4800-w4800-h3614".toUri()
         )
     )
 
-    val viewModel = hiltViewModel<HomeViewModel>()
-
-    val state by viewModel.viewStates.collectAsState()
 
     // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -181,15 +199,10 @@ fun HomeScreen() {
         permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
-    LaunchedEffect(selectedImageUri) {
-        selectedImageUri?.let {
-            viewModel.executeAction(HomeActions.IdentifyPhoto(uriToMultipart(context, it)))
-        }
-    }
     LaunchedEffect(state.location) {
         state.location.data?.let {
-            if (state.places.data == null){
-               viewModel.executeAction(HomeActions.GetHotelPlaces(it))
+            if (state.places.data == null) {
+               // viewModel.executeAction(HomeActions.SelectGenre(GenreType.HOTELS, it))
 
             }
         }
@@ -239,6 +252,79 @@ fun HomeScreen() {
         )
     }
 
+    // Identification Result Dialog
+    if (state.identificationResult.isLoading || state.identificationResult.data != null || state.identificationResult.errorThrowable != null) {
+        Dialog(onDismissRequest = {
+            viewModel.executeAction(HomeActions.ResetIdentificationResult)
+        }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (state.identificationResult.isLoading) {
+                        CircularProgressIndicator(color = colorResource(R.color.blue))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Identifying monument...", fontWeight = FontWeight.Medium)
+                    } else if (state.identificationResult.errorThrowable != null) {
+                        Text(
+                            "Error: ${state.identificationResult.errorThrowable}",
+                            color = Color.Red
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = {
+                            viewModel.executeAction(HomeActions.ResetIdentificationResult)
+                        }) {
+                            Text("Close")
+                        }
+                    } else {
+                        val result = state.identificationResult.data
+                        Text(
+                            text = "Result Found!",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = result?.name ?: "Unknown Monument",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = colorResource(R.color.blue),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = result?.description ?: "",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray,
+                            maxLines = 3
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            onClick = {
+                                onNavigateToQuiz(result?.monument_id ?: "", result?.name ?: "")
+                                viewModel.executeAction(HomeActions.ResetIdentificationResult)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.blue))
+                        ) {
+                            Icon(Icons.Default.Quiz, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Start Quiz", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
 
     Scaffold(
@@ -269,7 +355,7 @@ fun HomeScreen() {
                 screenHeight = screenHeight,
                 pagerState = pagerState
             ) {
-
+                // onPlaceClick(it)
             }
 
 
@@ -280,36 +366,12 @@ fun HomeScreen() {
             ) {
 
                 HomeGenreList(
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = Modifier.padding(top = 16.dp),
+                    selectedGenre = state.selectedGenre
                 ) { genre ->
 
                     val location = state.location.data ?: return@HomeGenreList
-
-                    when (genre.placeTypes) {
-                        "hotels" -> {
-                            viewModel.executeAction(
-                                HomeActions.GetHotelPlaces(location)
-                            )
-                        }
-
-                        PlaceTypes.RESTAURANT -> {
-                            viewModel.executeAction(
-                                HomeActions.GetRestaurantsPlaces(location)
-                            )
-                        }
-
-                        PlaceTypes.CAFE -> {
-                            viewModel.executeAction(
-                                HomeActions.GetCafePlaces(location)
-                            )
-                        }
-
-                        PlaceTypes.SHOPPING_MALL -> {
-                            viewModel.executeAction(
-                                HomeActions.GetMallPlaces(location)
-                            )
-                        }
-                    }
+                    viewModel.executeAction(HomeActions.SelectGenre(genre, location))
                 }
 
                 Spacer(Modifier.height(20.dp))
@@ -326,7 +388,7 @@ fun HomeScreen() {
                 Spacer(Modifier.height(12.dp))
 
 
-                PlacesHorizontalList(state.places,state.location.data)
+                PlacesHorizontalList(state.places, state.location.data, onPlaceClick)
 
 
             }
@@ -367,4 +429,3 @@ fun uriToMultipart(context: Context, uri: Uri): MultipartBody.Part {
         requestFile
     )
 }
-
