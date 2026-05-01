@@ -10,11 +10,13 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import com.besha.egyptguide.R
+import com.besha.egyptguide.appcore.data.remote.BackEndServices
 import com.besha.egyptguide.auth.screens.login.data.model.GoogleSignInResult
 import com.besha.egyptguide.auth.screens.login.data.model.LoginRequest
 import com.besha.egyptguide.auth.screens.login.data.model.LoginResponse
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpResponse
 import com.besha.egyptguide.auth.screens.login.data.model.UserData
+import com.besha.egyptguide.auth.screens.signup.data.model.SignUpForm
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpRequest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -31,6 +33,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class GoogleAuthClient  @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val backEndServices: BackEndServices
 ) {
 
 
@@ -91,12 +94,22 @@ class GoogleAuthClient  @Inject constructor(
                 .await()
                 .user ?: throw IllegalStateException("Sign in failed")
 
+            val result = backEndServices.signUp(SignUpRequest(
+                name = user.displayName ?: "",
+                email = user.email ?: "",
+                photo_url = user.photoUrl?.toString() ?: "",
+                language = "en"
+            ))
+
+            result.body() ?: SignUpResponse(false,result.errorBody().toString())
+
+
             return GoogleSignInResult(
                 user = UserData(
                     userId = user.uid,
                     fullName = user.displayName,
                     email = user.email,
-                    phoneNumber = user.phoneNumber,
+                    role = "user",
                     profilePhoto = user.photoUrl?.toString()
                 ),
                 errorMessage = null
@@ -107,22 +120,26 @@ class GoogleAuthClient  @Inject constructor(
     }
 
 
-    suspend fun signUp(signUpRequest: SignUpRequest): SignUpResponse {
+    suspend fun signUp(signUpForm: SignUpForm): SignUpResponse {
         return try {
-            auth.createUserWithEmailAndPassword(signUpRequest.email, signUpRequest.password).await()
+            auth.createUserWithEmailAndPassword(signUpForm.email, signUpForm.password).await()
 
             val user = auth.currentUser ?: throw IllegalStateException("User creation failed")
             user.sendEmailVerification().await()
 
+            val result = backEndServices.signUp(SignUpRequest(
+                name = signUpForm.name,
+                email = signUpForm.email,
+                photo_url = user.photoUrl?.toString() ?: "",
+                language = "en"
+            ))
 
-            SignUpResponse(
-                isSuccessful = true,
-                errorMessage = null
-            )
+           result.body() ?: SignUpResponse(false,result.errorBody().toString())
+
         } catch (e: Exception) {
             SignUpResponse(
-                isSuccessful = false,
-                errorMessage = e.message
+                success = false,
+                message = e.message
             )
         }
     }
@@ -185,7 +202,7 @@ class GoogleAuthClient  @Inject constructor(
             userId = uid,
             fullName = displayName,
             email = email,
-            phoneNumber = phoneNumber,
+            role = "user",
             profilePhoto = photoUrl?.toString()
         )
     }

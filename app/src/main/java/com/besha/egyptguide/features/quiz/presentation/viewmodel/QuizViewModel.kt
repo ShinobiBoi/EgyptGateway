@@ -4,6 +4,9 @@ import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
 import com.besha.egyptguide.features.quiz.domain.usecase.GetQuizUseCase
+import com.besha.egyptguide.features.quiz.domain.usecase.RateUseCase
+import com.besha.egyptguide.features.quiz.domain.usecase.SubmitQuizUseCase
+import com.besha.egyptguide.features.quiz.domain.usecase.VisitUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -11,7 +14,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class QuizViewModel @Inject constructor(
-    private val getQuizUseCase: GetQuizUseCase
+    private val getQuizUseCase: GetQuizUseCase,
+    private val submitQuizUseCase: SubmitQuizUseCase,
+    private val visitUseCase: VisitUseCase,
+    private val rateUseCase: RateUseCase
 ) : MVIBaseViewModel<QuizActions, QuizResults, QuizViewState>() {
 
     override val defaultViewState: QuizViewState

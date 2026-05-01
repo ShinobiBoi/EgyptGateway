@@ -1,19 +1,24 @@
 package com.besha.egyptguide.features.profile.presenation.viewmodel
 
+import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
+import com.besha.egyptguide.features.profile.data.model.UserProfile
 import com.besha.egyptguide.features.profile.domain.usecase.GetProfileUseCase
 import com.besha.egyptguide.features.profile.domain.usecase.LogOutUseCase
+import com.besha.egyptguide.features.profile.domain.usecase.UpdateProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
+import okhttp3.internal.wait
 import javax.inject.Inject
 
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getProfileUseCase: GetProfileUseCase,
+    private val updateProfileUseCase: UpdateProfileUseCase,
     private val logOutUseCase: LogOutUseCase
 ): MVIBaseViewModel<ProfileActions, ProfileResults, ProfileViewState>() {
 
@@ -28,6 +33,10 @@ class ProfileViewModel @Inject constructor(
                 handleGetProfile(this)
 
             }
+            is ProfileActions.UpdateProfile -> {
+                updateProfileUseCase(action.updateProfileRequest)
+                handleGetProfile(this)
+            }
 
             is ProfileActions.LogOut -> {
 
@@ -40,9 +49,22 @@ class ProfileViewModel @Inject constructor(
 
     private suspend fun handleGetProfile(collector: FlowCollector<ProfileResults>) {
 
+        collector.emit(ProfileResults.ProfileResult(CommonViewState(isLoading = true)))
+
         val result = getProfileUseCase()
 
-        collector.emit(ProfileResults.ProfileResult(CommonViewState(data = result)))
+        when (result) {
+
+            is DataState.Success<UserProfile> -> {
+                collector.emit(ProfileResults.ProfileResult(CommonViewState(data = result.data)))
+
+            }
+            is DataState.Error <UserProfile> -> {
+                collector.emit(ProfileResults.ProfileResult(CommonViewState(errorThrowable = result.throwable)))
+            }
+            else -> {}
+        }
+
     }
 
 

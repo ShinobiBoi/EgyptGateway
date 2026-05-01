@@ -2,6 +2,7 @@ package com.besha.egyptguide.auth.screens.signup.presentation.viewmodel
 
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
+import com.besha.egyptguide.auth.screens.signup.data.model.SignUpForm
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpRequest
 import com.besha.egyptguide.auth.screens.signup.domain.usecases.SignUpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,7 @@ class SignUpViewModel @Inject constructor(
         when (action) {
 
             is SignUpActions.SignUp -> {
-                handleSignUp(this,action.signUpRequest)
+                handleSignUp(this,action.signUpForm)
 
             }
 
@@ -36,20 +37,20 @@ class SignUpViewModel @Inject constructor(
 
     private suspend fun handleSignUp(
         collector: FlowCollector<SignUpResults>,
-        signUpRequest: SignUpRequest
+        signUpForm: SignUpForm
     ) {
 
         collector.emit(SignUpResults.SignUp(CommonViewState(isLoading = true)))
 
-        val response = signUpUseCase(signUpRequest)
+        val response = signUpUseCase(signUpForm)
 
 
-        if (response.isSuccessful){
+        if (response.success){
             collector.emit(SignUpResults.SignUp(CommonViewState(data = response, isSuccess = true)))
 
         }
         else{
-            collector.emit(SignUpResults.SignUp(CommonViewState(errorThrowable = Throwable(response.errorMessage))))
+            collector.emit(SignUpResults.SignUp(CommonViewState(errorThrowable = Throwable(response.message))))
         }
     }
 

@@ -57,6 +57,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.besha.egyptguide.appcore.components.AuthButton
+import com.besha.egyptguide.auth.screens.signup.data.model.SignUpForm
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpRequest
 import com.besha.egyptguide.auth.screens.signup.presentation.viewmodel.SignUpActions
 import com.besha.egyptguide.auth.screens.signup.presentation.viewmodel.SignUpViewModel
@@ -377,8 +378,8 @@ fun SignUpScreen(
             ) {
                 viewModel.executeAction(
                     SignUpActions.SignUp(
-                        SignUpRequest(
-                            fullName = fullName,
+                        SignUpForm(
+                            name = fullName,
                             email = email,
                             password = password
                         )

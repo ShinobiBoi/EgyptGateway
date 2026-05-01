@@ -2,8 +2,10 @@ package com.besha.egyptguide.features.profile.presenation.screen
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
@@ -26,21 +28,29 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -56,8 +66,16 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.navigation.ScreenResources
+import com.besha.egyptguide.features.leaderboard.presenation.viewmodel.LeaderboardActions
+import com.besha.egyptguide.features.profile.data.model.UpdateProfileRequest
+import com.besha.egyptguide.features.profile.presenation.screen.components.ProfileInfoItemRow
+import com.besha.egyptguide.features.profile.presenation.screen.components.ProfileNavigateItemRow
 import com.besha.egyptguide.features.profile.presenation.viewmodel.ProfileActions
 import com.besha.egyptguide.features.profile.presenation.viewmodel.ProfileViewModel
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 
 @Composable
@@ -72,166 +90,333 @@ fun ProfileScreen(rootController: NavController, childController: NavController)
         profileViewModel.executeAction(ProfileActions.GetProfile)
     }
 
-    /*    LaunchedEffect(state.loggedOut) {
-            if (state.loggedOut.isSuccess) {
+    var showNameDialog by remember { mutableStateOf(false) }
+    var editedName by remember { mutableStateOf("") }
 
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
-
-        }*/
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        // Account Section
-        Text(
-            text = "Account",
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            color = colorResource(R.color.black)
-        )
-
-        Card(
-            colors = CardDefaults.cardColors(containerColor = colorResource(R.color.white)),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(2.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-
-                    val profilePic = state.profile.data?.photoUrl
-
-
-                    if (profilePic != null)
-                        AsyncImage(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .size(54.dp),
-                            model = profilePic,
-                            contentDescription = "profile pic",
-                            contentScale = ContentScale.Crop,
-                        )
-                    else
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(colorResource(R.color.blue)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            val initials =
-                                state.profile.data?.username?.take(1)?.uppercase() ?: "?"
-                            Text(
-                                text = initials,
-                                color = colorResource(R.color.white),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
-                        }
-
-
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Welcome,",
-                            color = colorResource(R.color.black),
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = state.profile.data?.username ?: "Guest",
-                            fontWeight = FontWeight.Bold,
-                            color = colorResource(R.color.black),
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                    contentDescription = "Logout",
-                    tint = colorResource(R.color.black),
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            profileViewModel.executeAction(ProfileActions.LogOut)
-                            rootController.navigate(ScreenResources.AuthRoute) {
-                                popUpTo(ScreenResources.MainRoute) { inclusive = true }
-                                launchSingleTop = true
-                            }
-                        }
-                    )
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            profileViewModel.executeAction(
+                ProfileActions.UpdateProfile(
+                    UpdateProfileRequest(photoUri = profileUriToMultipart(context, it))
                 )
-            }
-        }
-
-        Text(
-            text = "List",
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            color = colorResource(R.color.black)
-        )
-
-        Card(
-            colors = CardDefaults.cardColors(containerColor = colorResource(R.color.white)),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(2.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column {
-                SettingRow("Tickets") {
-                    // childController.navigate(ScreenResources.WatchListScreenRoute)
-                }
-                HorizontalDivider(color = colorResource(R.color.gray))
-                SettingRow("Favorites") {
-                    // childController.navigate(ScreenResources.FavouritesScreenRoute)
-                }
-            }
-        }
-    }
-
-
-}
-
-
-@Composable
-fun SettingRow(title: String, value: String? = null, onClick: () -> Unit = {}) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = title, color = colorResource(R.color.black), fontSize = 15.sp)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (value != null) {
-                Text(
-                    text = value,
-                    color = colorResource(R.color.gray),
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(end = 4.dp)
-                )
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                contentDescription = null,
-                tint = colorResource(R.color.gray),
-                modifier = Modifier.size(14.dp)
             )
         }
     }
+
+    if (showNameDialog) {
+        AlertDialog(
+            onDismissRequest = { showNameDialog = false },
+            title = { Text(text = "Update Name") },
+            text = {
+                OutlinedTextField(
+                    value = editedName,
+                    onValueChange = { editedName = it },
+                    label = { Text("Name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (editedName.isNotBlank()) {
+                        profileViewModel.executeAction(
+                            ProfileActions.UpdateProfile(UpdateProfileRequest(name = editedName))
+                        )
+                        showNameDialog = false
+                    }
+                }) {
+                    Text("Update")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNameDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(text = "Select Language") },
+            text = {
+                Column {
+                    listOf("en", "ar").forEach { lang ->
+                        Text(
+                            text = lang,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    profileViewModel.executeAction(
+                                        ProfileActions.UpdateProfile(UpdateProfileRequest(language = lang.lowercase()))
+                                    )
+                                    showLanguageDialog = false
+                                }
+                                .padding(16.dp),
+                            fontSize = 16.sp,
+                            color = colorResource(R.color.black)
+                        )
+                    }
+                }
+            },
+            confirmButton = {}
+        )
+    }
+
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+
+        when {
+            state.profile.isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = colorResource(R.color.blue)
+                )
+            }
+
+            state.profile.errorThrowable != null -> {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Couldn't load leaderboard", color = Color.Gray)
+                    Button(
+                        onClick = { profileViewModel.executeAction(ProfileActions.GetProfile) },
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Text("Retry")
+                    }
+                }
+            }
+            state.profile.data != null -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+
+
+                    // Account Section//////////////////////////////////////////////////
+                    Text(
+                        text = "Account",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = colorResource(R.color.black)
+                    )
+
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = colorResource(R.color.white)),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = CardDefaults.cardElevation(2.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                                val profilePic = state.profile.data?.photo_url
+
+
+                                if (!profilePic.isNullOrEmpty())
+
+                                    if (profilePic.startsWith("http"))
+                                        AsyncImage(
+                                            modifier = Modifier
+                                                .clip(CircleShape)
+                                                .size(54.dp),
+                                            model = profilePic.toUri(),
+                                            contentDescription = "profile pic",
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                    else
+                                        AsyncImage(
+                                            modifier = Modifier
+                                                .clip(CircleShape)
+                                                .size(54.dp),
+                                            model = "http://10.0.2.2:8000$profilePic".toUri(),
+                                            contentDescription = "profile pic",
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                else
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(RoundedCornerShape(50))
+                                            .background(colorResource(R.color.blue)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        val initials =
+                                            state.profile.data?.name?.take(1)?.uppercase() ?: "?"
+                                        Text(
+                                            text = initials,
+                                            color = colorResource(R.color.white),
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp
+                                        )
+                                    }
+
+
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = "Welcome,",
+                                        color = colorResource(R.color.black),
+                                        fontSize = 14.sp
+                                    )
+                                    Text(
+                                        text = state.profile.data?.name ?: "Guest",
+                                        fontWeight = FontWeight.Bold,
+                                        color = colorResource(R.color.black),
+                                        fontSize = 16.sp
+                                    )
+                                }
+                            }
+
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                contentDescription = "Logout",
+                                tint = colorResource(R.color.black),
+                                modifier = Modifier.clickable(
+                                    onClick = {
+                                        profileViewModel.executeAction(ProfileActions.LogOut)
+                                        rootController.navigate(ScreenResources.AuthRoute) {
+                                            popUpTo(ScreenResources.MainRoute) { inclusive = true }
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
+                            )
+                        }
+                    }
+
+
+                    // profile Section//////////////////////////////////////////////////
+                    Text(
+                        text = "Profile info",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = colorResource(R.color.black)
+                    )
+
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = colorResource(R.color.white)),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = CardDefaults.cardElevation(2.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column {
+                            ProfileInfoItemRow("Edit profile photo") {
+                                photoPickerLauncher.launch("image/*")
+                            }
+                            HorizontalDivider(color = colorResource(R.color.gray))
+                            ProfileInfoItemRow("Name", state.profile.data?.name) {
+                                editedName = state.profile.data?.name ?: ""
+                                showNameDialog = true
+                            }
+                            HorizontalDivider(color = colorResource(R.color.gray))
+                            ProfileInfoItemRow("Language", state.profile.data?.language) {
+                                showLanguageDialog = true
+                            }
+                            HorizontalDivider(color = colorResource(R.color.gray))
+                            ProfileInfoItemRow("Change password") {
+                                // childController.navigate(ScreenResources.FavouritesScreenRoute)
+                            }
+                        }
+                    }
+
+                    // Leaderboard Section//////////////////////////////////////////////////
+                    Text(
+                        text = "Leaderboard",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = colorResource(R.color.black)
+                    )
+
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = colorResource(R.color.white)),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = CardDefaults.cardElevation(2.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column {
+                            ProfileNavigateItemRow("Leaderboard") {
+                                childController.navigate(
+                                    ScreenResources.LeaderboardRoute(
+                                        userId = state.profile.data?.id ?: ""
+                                    )
+                                )
+                            }
+                            HorizontalDivider(color = colorResource(R.color.gray))
+                            ProfileNavigateItemRow("Objectives") {
+                                // childController.navigate(ScreenResources.FavouritesScreenRoute)
+                            }
+                        }
+                    }
+
+
+                    // Tickets Section//////////////////////////////////////////////////
+
+
+                    Text(
+                        text = "Tickets",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = colorResource(R.color.black)
+                    )
+
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = colorResource(R.color.white)),
+                        shape = RoundedCornerShape(12.dp),
+                        elevation = CardDefaults.cardElevation(2.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column {
+                            ProfileNavigateItemRow("Tickets") {
+                                childController.navigate(ScreenResources.TicketsRoute)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
+private fun profileUriToMultipart(context: Context, uri: Uri): MultipartBody.Part {
+
+    val inputStream = context.contentResolver.openInputStream(uri)!!
+    val file = File.createTempFile("upload", ".jpg", context.cacheDir)
+
+    file.outputStream().use { output ->
+        inputStream.copyTo(output)
+    }
+
+    val requestFile = file
+        .asRequestBody("image/jpeg".toMediaType())
+
+    return MultipartBody.Part.createFormData(
+        "photo",
+        file.name,
+        requestFile
+    )
+}
+
+
 
 @Composable
 fun SettingRowSwitch(
@@ -276,7 +461,6 @@ fun NotificationPermissionToggle(
             onToggle(true)
         } else {
             // Permission denied
-            Toast.makeText(context, "Notifications are disabled", Toast.LENGTH_SHORT).show()
             onToggle(false)
         }
     }

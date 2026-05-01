@@ -17,12 +17,14 @@ import androidx.navigation.toRoute
 import com.besha.egyptguide.appcore.navigation.ScreenResources
 import com.besha.egyptguide.features.calendar.CalendarScreen
 import com.besha.egyptguide.features.home.presenation.screen.HomeScreen
+import com.besha.egyptguide.features.leaderboard.presenation.screen.LeaderboardScreen
 import com.besha.egyptguide.features.main.presentaion.components.CustomBottomNavigationBar
 import com.besha.egyptguide.features.main.presentaion.viewmodel.BottomNavViewModel
 import com.besha.egyptguide.features.maps.presentaion.screen.MapsScreen
 import com.besha.egyptguide.features.placedetails.presentation.screen.PlaceDetailsScreen
 import com.besha.egyptguide.features.profile.presenation.screen.ProfileScreen
 import com.besha.egyptguide.features.quiz.presentation.screen.QuizScreen
+import com.besha.egyptguide.features.tickets.presentation.screen.TicketsScreen
 
 @Composable
 fun MainScreen(rootController: NavController) {
@@ -46,7 +48,11 @@ fun MainScreen(rootController: NavController) {
 
     Scaffold(
         bottomBar = {
-            if (currentRoute !is ScreenResources.QuizRoute && currentRoute !is ScreenResources.PlaceDetailsRoute)
+            if (currentRoute !is ScreenResources.QuizRoute &&
+                currentRoute !is ScreenResources.PlaceDetailsRoute &&
+                currentRoute !is ScreenResources.TicketsRoute &&
+                currentRoute !is ScreenResources.LeaderboardRoute
+                )
             CustomBottomNavigationBar(currentRoute) { selectedRoute ->
                 if (selectedRoute != currentRoute) {
                     bottomNavViewModel.onRouteSelected(selectedRoute)
@@ -124,6 +130,20 @@ fun MainScreen(rootController: NavController) {
                 val quiz: ScreenResources.QuizRoute = backStackEntry.toRoute()
                 QuizScreen(
                     monument = quiz,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
+            composable<ScreenResources.LeaderboardRoute> {backStackEntry ->
+                val leaderboard: ScreenResources.LeaderboardRoute = backStackEntry.toRoute()
+                LeaderboardScreen(
+                    userId = leaderboard.userId,
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
+            composable<ScreenResources.TicketsRoute> {
+                TicketsScreen(
                     onBackClick = { navController.navigateUp() }
                 )
             }
