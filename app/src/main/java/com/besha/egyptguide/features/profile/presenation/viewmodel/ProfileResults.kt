@@ -14,4 +14,14 @@ sealed class ProfileResults: Result<ProfileViewState> {
             return oldState.copy(profile = profile)
         }
     }
+
+    data class NotificationResult(val notification: Boolean) : ProfileResults() {
+        override fun reduce(
+            defaultState: ProfileViewState,
+            oldState: ProfileViewState
+        ): ProfileViewState {
+            return oldState.copy(notification = notification)
+        }
+
+    }
 }

@@ -6,7 +6,6 @@ import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
 import com.besha.egyptguide.features.home.domain.usecase.NearBySearchUseCase
 import com.besha.egyptguide.features.maps.domain.usecases.CurrentLocationUseCase
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.model.PlaceTypes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -16,7 +15,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val backEndServices: BackEndServices,
     private val nearBySearchUseCase: NearBySearchUseCase,
     private val getCurrentLocationUseCase: CurrentLocationUseCase,
 ) : MVIBaseViewModel<HomeActions, HomeResults, HomeViewState>() {
@@ -28,16 +26,6 @@ class HomeViewModel @Inject constructor(
     override fun handleAction(action: HomeActions): Flow<HomeResults> = flow {
 
         when (action) {
-
-            is HomeActions.IdentifyPhoto -> {
-                emit(HomeResults.IdentifyPhoto(CommonViewState(isLoading = true)))
-                try {
-                    val result = backEndServices.identifyMonument(action.file)
-                    emit(HomeResults.IdentifyPhoto(CommonViewState(data = result)))
-                } catch (e: Exception) {
-                    emit(HomeResults.IdentifyPhoto(CommonViewState(errorThrowable = e)))
-                }
-            }
 
             is HomeActions.GetCurrentLocation -> {
                 try {
@@ -58,10 +46,6 @@ class HomeViewModel @Inject constructor(
                     else -> action.genre.placeTypes
                 }
                 handleGetPlaces(action.location, this, placeType)
-            }
-
-            is HomeActions.ResetIdentificationResult -> {
-                emit(HomeResults.ResetIdentificationResult)
             }
         }
 

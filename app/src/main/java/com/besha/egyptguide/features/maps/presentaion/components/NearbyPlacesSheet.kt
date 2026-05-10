@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,9 +43,13 @@ fun NearbyPlacesSheet(
     onPlaceClick: (MyPlace) -> Unit,
     onCloseClick: () -> Unit
 ) {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .height(screenHeight / 2)
             .background(Color.White)
             .padding(bottom = 16.dp)
     ) {
@@ -91,6 +96,7 @@ fun NearbyPlacesSheet(
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn(
+            modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

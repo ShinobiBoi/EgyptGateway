@@ -1,4 +1,4 @@
-package com.besha.egyptguide.features.quiz.data.model
+package com.besha.egyptguide.features.camera.data.model
 
 data class RatingRequest(
     val comment: String,

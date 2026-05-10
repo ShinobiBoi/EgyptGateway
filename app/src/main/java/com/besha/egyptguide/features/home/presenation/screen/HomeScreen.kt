@@ -84,34 +84,6 @@ fun HomeScreen(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
 
-    var showDialog by remember() {
-        mutableStateOf(
-            false
-        )
-    }
-
-
-    val context = LocalContext.current
-    var cameraUri by remember { mutableStateOf<Uri?>(null) }
-
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            viewModel.executeAction(HomeActions.IdentifyPhoto(uriToMultipart(context, it)))
-        }
-    }
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            cameraUri?.let {
-                viewModel.executeAction(HomeActions.IdentifyPhoto(uriToMultipart(context, it)))
-            }
-        }
-    }
-
     val egyptPlaces = listOf(
         MyPlace(
             id = "ChIJzbs54n1PWBQRizZuWjV0dMo",
@@ -202,230 +174,63 @@ fun HomeScreen(
     LaunchedEffect(state.location) {
         state.location.data?.let {
             if (state.places.data == null) {
-               // viewModel.executeAction(HomeActions.SelectGenre(GenreType.HOTELS, it))
+                // viewModel.executeAction(HomeActions.SelectGenre(GenreType.HOTELS, it))
 
             }
         }
     }
 
-
-
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                showDialog = false
-            },
-            confirmButton = {},
-            dismissButton = {},
-            text = {
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            showDialog = false
-                            cameraUri = createImageUri(context)
-                            cameraUri?.let {
-                                cameraLauncher.launch(it)
-
-                            }
-                        }
-                    ) {
-                        Text("Open Camera")
-                    }
-
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            showDialog = false
-                            galleryLauncher.launch("image/*")
-                        }
-                    ) {
-                        Text("Choose From Gallery")
-                    }
-                }
-            }
-        )
-    }
-
-    // Identification Result Dialog
-    if (state.identificationResult.isLoading || state.identificationResult.data != null || state.identificationResult.errorThrowable != null) {
-        Dialog(onDismissRequest = {
-            viewModel.executeAction(HomeActions.ResetIdentificationResult)
-        }) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (state.identificationResult.isLoading) {
-                        CircularProgressIndicator(color = colorResource(R.color.blue))
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("Identifying monument...", fontWeight = FontWeight.Medium)
-                    } else if (state.identificationResult.errorThrowable != null) {
-                        Text(
-                            "Error: ${state.identificationResult.errorThrowable}",
-                            color = Color.Red
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = {
-                            viewModel.executeAction(HomeActions.ResetIdentificationResult)
-                        }) {
-                            Text("Close")
-                        }
-                    } else {
-                        val result = state.identificationResult.data
-                        Text(
-                            text = "Result Found!",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = result?.name ?: "Unknown Monument",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = colorResource(R.color.blue),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = result?.description ?: "",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray,
-                            maxLines = 3
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Button(
-                            onClick = {
-                                onNavigateToQuiz(result?.monument_id ?: "", result?.name ?: "")
-                                viewModel.executeAction(HomeActions.ResetIdentificationResult)
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.blue))
-                        ) {
-                            Icon(Icons.Default.Quiz, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Start Quiz", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    showDialog = true
-                }
-            ) {
-                Icon(Icons.Default.CameraAlt, contentDescription = null)
-            }
-        }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorResource(R.color.white)),
     ) {
-        val x = it
 
 
-        Box(
+        HomeBanner(
+            modifier = Modifier
+                .fillMaxWidth(),
+            places = egyptPlaces,
+            screenHeight = screenHeight,
+            pagerState = pagerState
+        ) {
+            // onPlaceClick(it)
+        }
+
+
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = colorResource(R.color.white)),
+                .padding(top = screenHeight * 0.5f - 100.dp, start = 8.dp, end = 8.dp)
         ) {
 
+            HomeGenreList(
+                modifier = Modifier.padding(top = 16.dp),
+                selectedGenre = state.selectedGenre
+            ) { genre ->
 
-            HomeBanner(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                places = egyptPlaces,
-                screenHeight = screenHeight,
-                pagerState = pagerState
-            ) {
-                // onPlaceClick(it)
+                val location = state.location.data ?: return@HomeGenreList
+                viewModel.executeAction(HomeActions.SelectGenre(genre, location))
             }
 
+            Spacer(Modifier.height(20.dp))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = screenHeight * 0.5f - 100.dp, start = 8.dp, end = 8.dp)
-            ) {
+            Text(
+                text = stringResource(R.string.near_by_locations),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.SansSerif
+                ),
+                color = Color.Black
+            )
 
-                HomeGenreList(
-                    modifier = Modifier.padding(top = 16.dp),
-                    selectedGenre = state.selectedGenre
-                ) { genre ->
-
-                    val location = state.location.data ?: return@HomeGenreList
-                    viewModel.executeAction(HomeActions.SelectGenre(genre, location))
-                }
-
-                Spacer(Modifier.height(20.dp))
-
-                Text(
-                    text = stringResource(R.string.near_by_locations),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.SansSerif
-                    ),
-                    color = Color.Black
-                )
-
-                Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
 
 
-                PlacesHorizontalList(state.places, state.location.data, onPlaceClick)
+            PlacesHorizontalList(state.places, state.location.data, onPlaceClick)
 
 
-            }
         }
     }
-
 }
 
-
-fun createImageUri(context: Context): Uri {
-    val file = File.createTempFile(
-        "camera_image_",
-        ".jpg",
-        context.cacheDir
-    )
-    return FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        file
-    )
-}
-
-fun uriToMultipart(context: Context, uri: Uri): MultipartBody.Part {
-
-    val inputStream = context.contentResolver.openInputStream(uri)!!
-    val file = File.createTempFile("upload", ".jpg", context.cacheDir)
-
-    file.outputStream().use { output ->
-        inputStream.copyTo(output)
-    }
-
-    val requestFile = file
-        .asRequestBody("image/*".toMediaType())
-
-    return MultipartBody.Part.createFormData(
-        "file",
-        file.name,
-        requestFile
-    )
-}

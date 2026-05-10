@@ -40,4 +40,23 @@
     <string name="attractions_you_can_t_miss">Attractions you can\'t miss</string>
 
 
+
+
+
+
+    <!--    ai screen-->
+    <string name="ai_identifier">AI Identifier</string>
+    <string name="capture_a_monument_to_identify">Capture a monument to identify</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="unknown_monument">Unknown Monument</string>
+    <string name="take_a_challenge">Take a Challenge</string>
+    <string name="submit_feedback">Submit Feedback</string>
+    <string name="how_was_your_visit">How was your visit?</string>
+    <string name="crowd_level">Crowd Level</string>
+    <string name="share_your_experience">Share your experience...</string>
+    <string name="later">Later</string>
+    <string name="submit">Submit</string>
+
+
 </resources>

@@ -1,6 +1,7 @@
 package com.besha.egyptguide.features.maps.presentaion.screen
 
 import android.Manifest
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -42,6 +43,7 @@ import com.google.maps.android.compose.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapsScreen(
+    category: String?,
     onNavigateToDetails: (ScreenResources.PlaceDetailsRoute) -> Unit,
 ) {
 
@@ -69,6 +71,8 @@ fun MapsScreen(
         }
     }
 
+
+
     LaunchedEffect(Unit) {
         permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
@@ -82,9 +86,21 @@ fun MapsScreen(
                     durationMs = 800
                 )
                 viewModel.executeAction(MapsActions.CurrentLocationLoaded)
+                if (category != null) {
+                    Log.d("TAG", "MapsScreen: $category")
+                    Log.d("TAG", "MapsScreen: $latLng")
+                    viewModel.executeAction(
+                        MapsActions.SearchByText(
+                            latLng,
+                            category
+                        )
+                    )
+                }
+
             }
         }
     }
+
 
     // Expand sheet when nearby places arrive
     LaunchedEffect(state.nearByPlaces.data) {

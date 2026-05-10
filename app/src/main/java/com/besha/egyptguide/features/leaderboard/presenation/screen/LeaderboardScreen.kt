@@ -1,5 +1,6 @@
 package com.besha.egyptguide.features.leaderboard.presenation.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -17,11 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.besha.egyptguide.R
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardListItem
 import com.besha.egyptguide.features.leaderboard.presenation.viewmodel.LeaderboardActions
@@ -206,12 +210,25 @@ fun PodiumItem(
                 color = color.copy(alpha = 0.1f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = user.name?.take(1)?.uppercase() ?: "?",
-                        fontSize = if (rank == 1) 32.sp else 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = color
-                    )
+                    Log.d("PodiumItem", "PodiumItem: ${user.photo_url}")
+
+                    if (!user.photo_url.isNullOrEmpty()&& !user.photo_url.contains("default")){
+                        AsyncImage(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(40.dp),
+                            model = "http://10.0.2.2:8000${user.photo_url}".toUri(),
+                            contentDescription = "profile pic",
+                            contentScale = ContentScale.Crop,
+                        )
+                    }else {
+                        Text(
+                            text = user.name?.take(1)?.uppercase() ?: "?",
+                            fontSize = if (rank == 1) 32.sp else 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = color
+                        )
+                    }
                 }
             }
             
@@ -275,9 +292,6 @@ fun LeaderboardRow(user: LeaderboardListItem, rank: Int, isCurrentUser: Boolean)
                 shape = RoundedCornerShape(16.dp)
             ),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isCurrentUser) colorResource(R.color.blue).copy(alpha = 0.08f) else colorResource(R.color.white)
-        ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isCurrentUser) 4.dp else 1.dp)
     ) {
         Row(
@@ -294,18 +308,29 @@ fun LeaderboardRow(user: LeaderboardListItem, rank: Int, isCurrentUser: Boolean)
                 fontSize = 16.sp
             )
 
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(colorResource(R.color.blue).copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = user.name?.take(1)?.uppercase() ?: "?",
-                    fontWeight = FontWeight.Bold,
-                    color = colorResource(R.color.blue)
+            if (!user.photo_url.isNullOrEmpty()&& !user.photo_url.contains("default")){
+                AsyncImage(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(40.dp),
+                    model = "http://10.0.2.2:8000${user.photo_url}".toUri(),
+                    contentDescription = "profile pic",
+                    contentScale = ContentScale.Crop,
                 )
+            }else {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(colorResource(R.color.blue).copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = user.name?.take(1)?.uppercase() ?: "?",
+                        fontWeight = FontWeight.Bold,
+                        color = colorResource(R.color.blue)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))

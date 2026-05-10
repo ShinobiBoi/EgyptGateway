@@ -34,6 +34,7 @@ class MainActivity : ComponentActivity() {
 
 
 
+
         setContent {
             EgyptguideTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -41,14 +42,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     val x= innerPadding
 
-/*
-
-                    LaunchedEffect(Unit) {
-                        val users=backEndServices.getUsers()
-                        Log.d("users",users.toString())
-                        Log.d("users",users.body()?.get(0).toString())
-                    }
-*/
+                    val category = intent.getStringExtra("category")
 
 
 
@@ -61,13 +55,13 @@ class MainActivity : ComponentActivity() {
 
                         composable<ScreenResources.AuthRoute> {
 
-                            AuthScreen(navController)
+                            AuthScreen(navController,)
 
 
                         }
 
                         composable <ScreenResources.MainRoute>{
-                            MainScreen(navController)
+                            MainScreen(navController,category)
                         }
                         composable <ScreenResources.SplashRoute>{
                             SplashScreen(navController)

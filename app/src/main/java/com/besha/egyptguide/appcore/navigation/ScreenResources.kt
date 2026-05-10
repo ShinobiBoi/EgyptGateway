@@ -38,6 +38,9 @@ sealed class ScreenResources {
     object ProfileRoute : ScreenResources()
 
     @Serializable
+    object CameraRoute : ScreenResources()
+
+    @Serializable
     object TicketsRoute : ScreenResources()
 
     @Serializable
@@ -79,6 +82,7 @@ sealed class ScreenResources {
                 route.contains(LeaderboardRoute::class.qualifiedName ?: "") -> LeaderboardRoute("")
                 route.contains(PlaceDetailsRoute::class.qualifiedName ?: "") -> PlaceDetailsRoute()
                 route.contains(QuizRoute::class.qualifiedName ?: "") -> QuizRoute()
+                route.contains(CameraRoute::class.qualifiedName ?: "") -> CameraRoute
                 else -> null
             }
         }

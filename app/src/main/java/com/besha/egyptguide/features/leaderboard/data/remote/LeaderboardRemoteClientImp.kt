@@ -26,15 +26,8 @@ class LeaderboardRemoteClientImp @Inject constructor(private val backEndServices
 
     override suspend fun getCurrentRank(): DataState<LeaderboardListItem> {
 
-        return DataState.Success(LeaderboardListItem(
-            name = "besho",
-            points = 50,
-            rank = 36,
-            user_id = ""
-        ))
 
-
-/*        return try {
+        return try {
             val response = backEndServices.getCurrentRank()
             if (response.isSuccessful && response.body() != null) {
                 DataState.Success(response.body()!!)
@@ -43,7 +36,7 @@ class LeaderboardRemoteClientImp @Inject constructor(private val backEndServices
             }
         } catch (e: Exception) {
             DataState.Error(e)
-        }*/
+        }
 
 
     }

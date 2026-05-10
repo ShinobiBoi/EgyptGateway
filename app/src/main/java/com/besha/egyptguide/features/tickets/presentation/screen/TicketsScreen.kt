@@ -18,7 +18,6 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -26,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.besha.egyptguide.R
-import com.besha.egyptguide.features.home.presenation.screen.uriToMultipart
 import com.besha.egyptguide.features.tickets.data.model.Ticket
 import com.besha.egyptguide.features.tickets.data.model.TicketStatus
 import com.besha.egyptguide.features.tickets.presentation.viewmodel.TicketsActions
@@ -47,7 +45,7 @@ fun TicketsScreen(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            viewModel.executeAction(TicketsActions.ScanTicket(uriToMultipart(context, it)))
+            //viewModel.executeAction(TicketsActions.ScanTicket(uriToMultipart(context, it)))
         }
     }
 

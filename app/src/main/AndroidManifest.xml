@@ -9,6 +9,12 @@
         android:required="false"/>
 
 
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+
+
+
     <application
         android:name="com.besha.HiltApp"
         android:usesCleartextTraffic="true"
@@ -48,6 +54,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".appcore.notification.reciever.AlarmReceiver"/>
     </application>
 
 </manifest>

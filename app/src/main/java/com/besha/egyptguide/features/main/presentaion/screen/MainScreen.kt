@@ -1,6 +1,7 @@
 package com.besha.egyptguide.features.main.presentaion.screen
 
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -12,10 +13,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.besha.egyptguide.appcore.navigation.ScreenResources
-import com.besha.egyptguide.features.calendar.CalendarScreen
+import com.besha.egyptguide.features.camera.presenation.screen.CameraScreen
 import com.besha.egyptguide.features.home.presenation.screen.HomeScreen
 import com.besha.egyptguide.features.leaderboard.presenation.screen.LeaderboardScreen
 import com.besha.egyptguide.features.main.presentaion.components.CustomBottomNavigationBar
@@ -27,24 +29,33 @@ import com.besha.egyptguide.features.quiz.presentation.screen.QuizScreen
 import com.besha.egyptguide.features.tickets.presentation.screen.TicketsScreen
 
 @Composable
-fun MainScreen(rootController: NavController) {
+fun MainScreen(rootController: NavController,category: String?) {
 
 
     val navController = rememberNavController()
     val bottomNavViewModel = hiltViewModel<BottomNavViewModel>()
     val currentRoute by bottomNavViewModel.currentRoute.collectAsState()
 
-    LaunchedEffect(navController) {
-        navController.currentBackStackEntryFlow.collect { backStackEntry ->
-            val route = backStackEntry.destination.route
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val route = navBackStackEntry?.destination?.route
+
+
+    LaunchedEffect(category) {
+
+        if (category != null) {
+            navController.navigate(ScreenResources.MapsRoute)
+        }
+
+    }
+
+    LaunchedEffect(route) {
+        Log.d("MainScreen", "route: $route")
             route?.let {
                 ScreenResources.fromRoute(it)?.let { screen ->
                     bottomNavViewModel.onRouteSelected(screen)
                 }
             }
-        }
     }
-
 
     Scaffold(
         bottomBar = {
@@ -99,7 +110,7 @@ fun MainScreen(rootController: NavController) {
             }
             composable<ScreenResources.MapsRoute> {
 
-                MapsScreen() { screenRoute ->
+                MapsScreen(category) { screenRoute ->
                     navController.navigate(
                         screenRoute
                     )
@@ -109,13 +120,16 @@ fun MainScreen(rootController: NavController) {
             composable<ScreenResources.CalendarRoute> {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    CalendarScreen()
+                    //CalendarScreen()
                 }
             }
             composable<ScreenResources.ProfileRoute> {
 
                 ProfileScreen(rootController, navController)
 
+            }
+            composable<ScreenResources.CameraRoute> {
+                CameraScreen(navController)
             }
 
             composable<ScreenResources.PlaceDetailsRoute> { backStackEntry ->

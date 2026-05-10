@@ -4,10 +4,9 @@ import com.besha.egyptguide.auth.screens.signup.data.model.SignUpRequest
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpResponse
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardList
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardListItem
-import com.besha.egyptguide.features.profile.data.model.UpdateProfileRequest
 import com.besha.egyptguide.features.profile.data.model.UserProfile
 import com.besha.egyptguide.features.quiz.data.model.Quiz
-import com.besha.egyptguide.features.quiz.data.model.RatingResponse
+import com.besha.egyptguide.features.camera.data.model.RatingResponse
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizResponse
 import com.besha.egyptguide.features.quiz.data.model.VisitResponse
 import okhttp3.MultipartBody
@@ -86,7 +85,7 @@ interface BackEndServices {
     suspend fun getLeaderboard():Response<LeaderboardList>
 
     //leaderboard///////////////////////////////////////////////////
-    @GET("/leaderboard/userId")
+    @GET("/leaderboard/me")
     suspend fun getCurrentRank():Response<LeaderboardListItem>
 
 

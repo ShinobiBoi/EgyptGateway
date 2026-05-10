@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "com.besha.egyptguide"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.androidx.hilt.work)
     ksp(libs.hilt.compiler)
 
     // Maps SDK for Android

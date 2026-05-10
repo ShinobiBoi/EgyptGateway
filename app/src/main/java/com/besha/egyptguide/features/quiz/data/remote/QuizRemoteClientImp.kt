@@ -5,8 +5,6 @@ import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.data.remote.BackEndServices
 import com.besha.egyptguide.features.quiz.data.model.Quiz
 import com.besha.egyptguide.features.quiz.data.model.QuizItem
-import com.besha.egyptguide.features.quiz.data.model.RatingRequest
-import com.besha.egyptguide.features.quiz.data.model.RatingResponse
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizRequest
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizResponse
 import com.besha.egyptguide.features.quiz.data.model.VisitRequest
@@ -94,25 +92,6 @@ class QuizRemoteClientImp @Inject constructor(private val backEndServices: BackE
             val response = backEndServices.gamSubmitQuiz(
                 id = submitQuizRequest.monument_id,
                 score = submitQuizRequest.score
-            )
-            if (response.isSuccessful && response.body() != null) {
-                DataState.Success(response.body()!!)
-            }
-            else{
-                DataState.Error(Exception(response.errorBody()!!.string()))
-            }
-        }catch (e:Exception){
-            DataState.Error(e)
-        }
-    }
-
-    override suspend fun rate(ratingRequest: RatingRequest): DataState<RatingResponse> {
-        return try {
-            val response = backEndServices.gamRating(
-                id = ratingRequest.monument_id,
-                score = ratingRequest.rating,
-                crowdLevel = ratingRequest.crowd_level,
-                comment = ratingRequest.comment
             )
             if (response.isSuccessful && response.body() != null) {
                 DataState.Success(response.body()!!)
