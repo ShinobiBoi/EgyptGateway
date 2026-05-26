@@ -1,17 +1,16 @@
 package com.besha.egyptguide.features.tickets.presentation.screen
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -19,35 +18,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.besha.egyptguide.R
-import com.besha.egyptguide.features.tickets.data.model.Ticket
-import com.besha.egyptguide.features.tickets.data.model.TicketStatus
+import com.besha.egyptguide.features.tickets.domain.models.Ticket
+import com.besha.egyptguide.features.tickets.domain.models.TicketStatus
 import com.besha.egyptguide.features.tickets.presentation.viewmodel.TicketsActions
 import com.besha.egyptguide.features.tickets.presentation.viewmodel.TicketsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TicketsScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateToSubmit: () -> Unit,
+    onNavigateToDetails: (String) -> Unit
 ) {
     val viewModel = hiltViewModel<TicketsViewModel>()
     val state by viewModel.viewStates.collectAsState()
-    val context = LocalContext.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Pending", "Approved", "Declined")
-
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            //viewModel.executeAction(TicketsActions.ScanTicket(uriToMultipart(context, it)))
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.executeAction(TicketsActions.GetTickets)
@@ -66,13 +57,13 @@ fun TicketsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { galleryLauncher.launch("image/*") },
+            ExtendedFloatingActionButton(
+                onClick = onNavigateToSubmit,
                 containerColor = colorResource(R.color.blue),
-                contentColor = Color.White
-            ) {
-                Icon(Icons.Default.CameraAlt, contentDescription = "Scan Ticket")
-            }
+                contentColor = Color.White,
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("Submit Ticket") }
+            )
         }
     ) { padding ->
         Column(
@@ -86,7 +77,7 @@ fun TicketsScreen(
                 containerColor = Color.White,
                 contentColor = colorResource(R.color.blue),
                 indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
+                    TabRowDefaults.SecondaryIndicator(
                         modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
                         color = colorResource(R.color.blue)
                     )
@@ -125,30 +116,7 @@ fun TicketsScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(filteredTickets) { ticket ->
-                                TicketItem(ticket)
-                            }
-                        }
-                    }
-                }
-                
-                if (state.scanResult.isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.3f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Card(
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(24.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                CircularProgressIndicator(color = colorResource(R.color.blue))
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Text("Scanning ticket...", fontWeight = FontWeight.Medium)
+                                TicketItem(ticket, onClick = { ticket.id?.let { onNavigateToDetails(it) } })
                             }
                         }
                     }
@@ -159,9 +127,11 @@ fun TicketsScreen(
 }
 
 @Composable
-fun TicketItem(ticket: Ticket) {
+fun TicketItem(ticket: Ticket, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -191,12 +161,12 @@ fun TicketItem(ticket: Ticket) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = ticket.monumentName,
+                    text = ticket.name ?: "Unknown",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Date: ${ticket.date}",
+                    text = "Date: ${ticket.bookingDate ?: "N/A"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
@@ -213,6 +183,7 @@ fun StatusBadge(status: TicketStatus) {
         TicketStatus.APPROVED -> Color(0xFFE7F5EA) to Color(0xFF2B8A3E)
         TicketStatus.PENDING -> Color(0xFFFFF4E6) to Color(0xFFD9480F)
         TicketStatus.DECLINED -> Color(0xFFFFF5F5) to Color(0xFFC92A2A)
+        else -> Color.Transparent to Color.Transparent
     }
 
     Surface(

@@ -3,9 +3,11 @@ package com.besha.egyptguide.features.quiz.presentation.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,10 +18,14 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.navigation.ScreenResources
+import com.besha.egyptguide.features.camera.data.model.VisitResponse
 import com.besha.egyptguide.features.quiz.data.model.QuizItem
+import com.besha.egyptguide.features.quiz.data.model.SubmitQuizRequest
+import com.besha.egyptguide.features.quiz.data.model.SubmitQuizResponse
 import com.besha.egyptguide.features.quiz.presentation.viewmodel.QuizActions
 import com.besha.egyptguide.features.quiz.presentation.viewmodel.QuizViewModel
 
@@ -34,12 +40,20 @@ fun QuizScreen(
 
     var currentQuestionIndex by remember { mutableIntStateOf(0) }
     val selectedAnswers = remember { mutableStateMapOf<Int, String>() }
+    var showQuizScore by remember { mutableStateOf(false) }
+
+
 
     val primaryColor = colorResource(R.color.blue)
     val secondaryColor = primaryColor.copy(alpha = 0.1f)
 
     LaunchedEffect(monument.id) {
         viewModel.executeAction(QuizActions.GetQuiz(monument.id!!))
+    }
+    LaunchedEffect(state.submitQuizResponse.data) {
+        if (state.submitQuizResponse.data != null) {
+            showQuizScore = true
+        }
     }
 
     Scaffold(
@@ -148,7 +162,15 @@ fun QuizScreen(
                                 Button(
                                     onClick = {
                                         if (isLastQuestion) {
-                                            // TODO: Handle Submit logic (e.g., viewModel action)
+
+                                            var grade = 0
+                                            selectedAnswers.forEach {
+                                                if (it.value == quizItems[it.key].correct_answer)
+                                                    grade++
+                                            }
+                                            viewModel.executeAction(QuizActions.SubmitQuiz(
+                                                SubmitQuizRequest(monument.id!!, grade)
+                                            ))
                                         } else {
                                             currentQuestionIndex++
                                         }
@@ -170,6 +192,94 @@ fun QuizScreen(
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
+                }
+            }
+        }
+    }
+
+    if (showQuizScore) {
+        QuizScoreDialog(response = state.submitQuizResponse.data!!, onDismiss =
+            {
+                showQuizScore = false
+                onBackClick()
+            })
+    }
+}
+
+
+
+
+@Composable
+fun QuizScoreDialog(response: SubmitQuizResponse, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = Color.White,
+            tonalElevation = 8.dp,
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .background(colorResource(R.color.blue).copy(alpha = 0.1f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.EmojiEvents,
+                        contentDescription = null,
+                        tint = Color(0xFFFFD700),
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+
+                Text(
+                    text = "Monument Visited!",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.Black
+                )
+
+                Text(
+                    text = response.message,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = colorResource(R.color.blue).copy(alpha = 0.05f)),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Earned", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                            Text("+${response.earned_points}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = colorResource(R.color.blue))
+                        }
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color.LightGray))
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Total", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                            Text("${response.total_points}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.Black)
+                        }
+                    }
+                }
+
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.blue))
+                ) {
+                    Text("Awesome!", fontWeight = FontWeight.Bold)
                 }
             }
         }

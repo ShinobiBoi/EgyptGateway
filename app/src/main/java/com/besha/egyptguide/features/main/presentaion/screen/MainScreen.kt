@@ -26,7 +26,9 @@ import com.besha.egyptguide.features.maps.presentaion.screen.MapsScreen
 import com.besha.egyptguide.features.placedetails.presentation.screen.PlaceDetailsScreen
 import com.besha.egyptguide.features.profile.presenation.screen.ProfileScreen
 import com.besha.egyptguide.features.quiz.presentation.screen.QuizScreen
+import com.besha.egyptguide.features.tickets.presentation.screen.SubmitTicketScreen
 import com.besha.egyptguide.features.tickets.presentation.screen.TicketsScreen
+import com.besha.egyptguide.features.tickets.presentation.screen.TicketDetailsScreen
 
 @Composable
 fun MainScreen(rootController: NavController,category: String?) {
@@ -62,6 +64,8 @@ fun MainScreen(rootController: NavController,category: String?) {
             if (currentRoute !is ScreenResources.QuizRoute &&
                 currentRoute !is ScreenResources.PlaceDetailsRoute &&
                 currentRoute !is ScreenResources.TicketsRoute &&
+                currentRoute !is ScreenResources.SubmitTicketRoute &&
+                currentRoute !is ScreenResources.TicketDetailsRoute &&
                 currentRoute !is ScreenResources.LeaderboardRoute
                 )
             CustomBottomNavigationBar(currentRoute) { selectedRoute ->
@@ -117,12 +121,6 @@ fun MainScreen(rootController: NavController,category: String?) {
                 }
 
             }
-            composable<ScreenResources.CalendarRoute> {
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    //CalendarScreen()
-                }
-            }
             composable<ScreenResources.ProfileRoute> {
 
                 ProfileScreen(rootController, navController)
@@ -156,8 +154,25 @@ fun MainScreen(rootController: NavController,category: String?) {
                 )
             }
 
+            composable<ScreenResources.SubmitTicketRoute> {
+
+                SubmitTicketScreen({ navController.navigateUp() })
+            }
+
             composable<ScreenResources.TicketsRoute> {
                 TicketsScreen(
+                    onBackClick = { navController.navigateUp() },
+                    onNavigateToSubmit = { navController.navigate(ScreenResources.SubmitTicketRoute) },
+                    onNavigateToDetails = { ticketId ->
+                        navController.navigate(ScreenResources.TicketDetailsRoute(ticketId))
+                    }
+                )
+            }
+
+            composable<ScreenResources.TicketDetailsRoute> { backStackEntry ->
+                val details: ScreenResources.TicketDetailsRoute = backStackEntry.toRoute()
+                TicketDetailsScreen(
+                    ticketId = details.ticketId,
                     onBackClick = { navController.navigateUp() }
                 )
             }

@@ -2,13 +2,19 @@ package com.besha.egyptguide.appcore.data.remote
 
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpRequest
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpResponse
+import com.besha.egyptguide.features.camera.data.model.RatingRequest
+import com.besha.egyptguide.features.camera.data.model.RatingResponse
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardList
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardListItem
 import com.besha.egyptguide.features.profile.data.model.UserProfile
 import com.besha.egyptguide.features.quiz.data.model.Quiz
-import com.besha.egyptguide.features.camera.data.model.RatingResponse
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizResponse
-import com.besha.egyptguide.features.quiz.data.model.VisitResponse
+import com.besha.egyptguide.features.camera.data.model.VisitRequest
+import com.besha.egyptguide.features.camera.data.model.VisitResponse
+import com.besha.egyptguide.features.quiz.data.model.SubmitQuizRequest
+import com.besha.egyptguide.features.tickets.data.dto.GetTicketResponse
+import com.besha.egyptguide.features.tickets.data.dto.SubmitTicketResponse
+import com.besha.egyptguide.features.tickets.data.dto.TicketDetailsResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -18,6 +24,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface BackEndServices {
@@ -51,26 +58,22 @@ interface BackEndServices {
 
 
     //gamfication///////////////////////////////////////////////////
-    @POST("/gamfication/visit")
+    @POST("/gamification/visit")
     suspend fun gamVisit(
-        @Query("monument_id") id: String,
+        @Body visitRequest: VisitRequest,
     ): Response<VisitResponse>
 
-    @POST("/gamfication/quiz")
+    @POST("/gamification/quiz")
     suspend fun gamSubmitQuiz(
-        @Query("monument_id") id: String,
-        @Query("score") score: Int
+        @Body submitQuizRequest: SubmitQuizRequest,
     ): Response<SubmitQuizResponse>
 
-    @POST("/gamfication/rating")
+    @POST("/gamification/rating")
     suspend fun gamRating(
-        @Query("monument_id") id: String,
-        @Query("rating") score: Int,
-        @Query("crowd_level") crowdLevel: String,
-        @Query("comment") comment: String,
+        @Body ratingRequest: RatingRequest,
         ): Response<RatingResponse>
 
-    @GET("/gamfication/quizzes")
+    @GET("/gamification/quizzes")
     suspend fun getQuiz(
         @Query("monument_id") id: String
     ): Response<Quiz>
@@ -95,21 +98,27 @@ interface BackEndServices {
     @POST("monuments/identify")
     suspend fun identifyMonument(
         @Part file: MultipartBody.Part
-    ): IdentifyResponse
+    ): Response<IdentifyResponse>
 
 
     @Multipart
-    @POST("tickets/scan")
-    suspend fun scanTicket(
-        @Part file: MultipartBody.Part
-    ): ScanResponse
+    @POST("tickets/submit")
+    suspend fun submitTicket(
+        @Part("name") name: RequestBody?,
+        @Part("google_place_id") google_place_id : RequestBody?,
+        @Part("latitude") latitude : RequestBody?,
+        @Part("longitude") longitude : RequestBody?,
+        @Part photo: MultipartBody.Part?
+    ): Response<SubmitTicketResponse>
 
+    @GET("tickets/my")
+    suspend fun myTickets(
+    ): Response<GetTicketResponse>
 
-    @Multipart
-    @POST("tickets/get")
-    suspend fun getTickets(
-        @Part file: MultipartBody.Part
-    ): TicketResponse
+    @GET("tickets/{ticket_id}")
+    suspend fun getTicketDetails(
+        @Path("ticket_id") ticketId: String
+    ): Response<TicketDetailsResponse>
 
 
 }
@@ -117,14 +126,6 @@ data class ScanResponse(
     val isSuccessful: Boolean,
 )
 
-data class TicketResponse(
-    val status: String,
-    val monument_id: String?,
-    val label_id: String?,
-    val name: String?,
-    val description: String?,
-    val city: String?,
-)
 
 
 

@@ -5,6 +5,7 @@ import com.besha.egyptguide.appcore.data.remote.IdentifyResponse
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.Result
 import com.besha.egyptguide.features.camera.data.model.RatingResponse
+import com.besha.egyptguide.features.camera.data.model.VisitResponse
 
 sealed class CameraResults : Result<CameraViewState> {
     data class IdentifyResult(val result: CommonViewState<IdentifyResponse>) : CameraResults() {
@@ -13,9 +14,18 @@ sealed class CameraResults : Result<CameraViewState> {
         }
     }
 
+    data class Visit(val visitResponse: CommonViewState<VisitResponse>) : CameraResults() {
+        override fun reduce(
+            defaultState: CameraViewState,
+            oldState: CameraViewState
+        ): CameraViewState {
+            return oldState.copy(visitResponse = visitResponse)
+        }
+    }
+
     data class RateResult(val result: CommonViewState<RatingResponse>) : CameraResults() {
         override fun reduce(defaultState: CameraViewState, oldState: CameraViewState): CameraViewState {
-            return oldState.copy(rateResult = result)
+            return oldState.copy(rateResponse = result)
         }
     }
 

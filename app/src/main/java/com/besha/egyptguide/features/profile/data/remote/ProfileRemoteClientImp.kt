@@ -33,7 +33,6 @@ class ProfileRemoteClientImp @Inject constructor(
     }
 
     override suspend fun updateProfile(updateProfileRequest: UpdateProfileRequest) {
-        Log.d("TAG",  updateProfileRequest.toString())
         backEndServices.updateProfile(
             name = updateProfileRequest.name?.toRequestBody("text/plain".toMediaTypeOrNull()),
             language = updateProfileRequest.language?.toRequestBody("text/plain".toMediaTypeOrNull()),

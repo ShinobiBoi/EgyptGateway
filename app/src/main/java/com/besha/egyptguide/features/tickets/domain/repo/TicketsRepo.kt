@@ -1,10 +1,13 @@
 package com.besha.egyptguide.features.tickets.domain.repo
 
-import com.besha.egyptguide.features.tickets.data.model.Ticket
-import com.besha.egyptguide.appcore.data.remote.ScanResponse
-import okhttp3.MultipartBody
+import com.besha.egyptguide.appcore.data.model.DataState
+import com.besha.egyptguide.features.tickets.data.dto.SubmitTicketRequest
+import com.besha.egyptguide.features.tickets.data.dto.SubmitTicketResponse
+import com.besha.egyptguide.features.tickets.domain.models.Ticket
+import com.besha.egyptguide.features.tickets.domain.models.TicketDetails
 
 interface TicketsRepo {
-    suspend fun getTickets(): List<Ticket>
-    suspend fun scanTicket(file: MultipartBody.Part): ScanResponse
+    suspend fun getTickets(): DataState<List<Ticket>>
+    suspend fun submitTicket(submitTicketRequest: SubmitTicketRequest): DataState<SubmitTicketResponse>
+    suspend fun getTicketDetails(ticketId: String): DataState<TicketDetails>
 }

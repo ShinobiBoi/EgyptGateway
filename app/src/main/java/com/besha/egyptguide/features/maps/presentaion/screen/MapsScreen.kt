@@ -206,10 +206,11 @@ fun MapsScreen(
                 cameraPositionState = cameraPositionState,
                 onMapClick = { focusManager.clearFocus() },
                 properties = MapProperties(
-                    isMyLocationEnabled = hasLocationPermission
+                    isMyLocationEnabled = hasLocationPermission,
+
                 ),
                 uiSettings = MapUiSettings(
-                    myLocationButtonEnabled = true,
+                    myLocationButtonEnabled = false,
                     zoomControlsEnabled = false
                 )
             ) {

@@ -90,70 +90,70 @@ fun HomeScreen(
             displayName = "Giza Necropolis",
             formattedAddress = "Al Haram, Giza",
             location = LatLng(29.977296199999998, 31.132495499999997),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNEatBUyzhDFadPP7cvGQOARkSFMGDTsBwlLZP6-mKyv3gBSi0C-68a1KpzB24XGWEQkklMzwJr0pCphL6OH9XDtCWVe7ELzdOjtCJmSqJl7IScS4rR6B1fQV8YyQmIq1W_zq_ta4-bN8z1mYg=s4800-w4800-h4408".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZOpRCFuaYhkZRT_bzRysxBNP0WOCY-TsK7BPhyPb2l83dkuOx706iwK9YUu0THXDHTa3_H-Klruc-P8I5kRuGf9aSaYB2pXQfXnkENrSb79eNYj7EmoZBzFHWyNReC_JkHbb4VKxyQtsVOUJg=s4800-w4800-h4408".toUri()
         ),
         MyPlace(
             id = "ChIJeamuo2JPWBQRqb1mQKbw08k",
             displayName = "Great Sphinx of Giza",
             formattedAddress = "Al Haram, Giza",
             location = LatLng(29.9752687, 31.1375674),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNFcj1GIVtAE8JOKHqyr18BoLAtlYYliwHdys5dzXBx6xbObpl8Yuo8wgeUN454nS-9QUoraFl0H5OTDwwLXSzxXJU4PcvtO53Yy2wrZad6BthTB6goi51_wWAXTV2hIuPaznud5B6Xr1fWU=s4800-w4000-h3000".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZNnAh61hBAKEtAuCHHSMtcQbX2wMbEH1kGRDtJ56sVpiGFuwnPMKaWqAGvcUalQhpL5fkDc0M_p2-FoR9lMprDhUzb0TTGNVKAtox5NtQbZUrwv4pMEeO-OTmq5MWeQTqWufGDbSBK_o2Fn=s4800-w4000-h3000".toUri()
         ),
         MyPlace(
             id = "ChIJzcD-KJIVSRQR2FnCCMDoGsc",
             displayName = "Karnak",
             formattedAddress = "Karnak, Luxor",
             location = LatLng(25.718834599999997, 32.6572703),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNF2M270t3nxP591aJcMzhjeuoaYEs73MTcv9zJA-8RYuD4gIv-IHDLEsoXXk-7d_oqHy-qg2_OO7lXxGENj36UXiOKidV8Db4261wuY0CyReWqborFGbp96Qu6N9BvQFkVf-CEwDKKN19stNw=s4800-w4800-h2703".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZO53rqdBY-1wSfiuiz-kDATEURIxKistdz35t6ckSOE_yrMQs4WlcTf8Kemlhx4t_4c6WbyWCYON5UUYbKKqvlxEjXh69osbuhDM0BTWEHBLaf-krxjV7lUC3Gw8t9L1v0wvyLtPGLKZkMlug=s4800-w4800-h2703".toUri()
         ),
         MyPlace(
             id = "ChIJ1_7etYo9SRQR2qnjovbMj3E",
             displayName = "Valley of the Kings",
             formattedAddress = "Luxor, Luxor",
             location = LatLng(25.7401643, 32.601411),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNG6hMc4UtNtnW8FR9cAAh4B5Jjj8PsbaSBvjwOFBpZxP1cRxMmsqDuVOELraXd4Zbth0b69acUk7gsH7epIf3W3QDOcEzqUA_6EgF0tv5mu_7mXTwB0iT83j5WQ25m_3blmXwh1M887R7DObak=s4800-w4000-h3000".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZNHBNxHZQNOhO89XjR6ZCQgM4xnMlDq-KgVXo2EJnw9D2cDXmI0JbscXNlAc5ybjxq8a1tguW8SU3oS1t1KAdasWedXzjbPtd7YSvsDM94Kykgh9rDDT1489W3ydI1bdeHa8lkOqYBfjMep6Tk=s4800-w4000-h3000".toUri()
         ),
         MyPlace(
             id = "ChIJ3ae_xxgWSRQR07VjFXrhHwM",
             displayName = "Mortuary Temple of Hatshepsut",
             formattedAddress = "Al Qarna, Luxor",
             location = LatLng(25.738277300000004, 32.6064906),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNEXKpFDPRl-jQokI1gAQtmCo-IwPVTn1nOzKB1U5DMMh_-aKhvHv7n5tPkczYztGKQc41gdiTA37-5lWZrH1JlTsviluz9C1lunsdZV3lY1FQKy5SBz4jtne3JyOkO5BkVQNZMdoCAIdUO-=s4800-w2048-h1431".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZO7qdYvvBk0QhJZRrdsEmOiFTT3L2dp9R6H84FqP-R6BT4gJyfXm3OW5R88hgUuVPyGfJaLAFclXR2MAMjHoW5OqEkP9-xZLm1fmI06rBfpK-F0c1HbduMtGa5HieDCzVJnWpzgsMloiUyw=s4800-w2048-h1431".toUri()
         ),
         MyPlace(
             id = "ChIJn1b3gKpAWBQRbsg1WfPe1NA",
             displayName = "Mosque of Muhammad Ali",
             formattedAddress = "Saladin, Cairo",
             location = LatLng(30.0290456, 31.259796599999998),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNGrKfZ6u7GSjz8wynKGA2PP--QJrPafX5BAZ2FXug_4t_BzmhffBczaKsC5gNg9JAV4bkL_nDjs4KApE6TlcLf_6WhM_qFJreAAPZ2CLmoUehc0Tl-FJbcdVZhtmQwRlmKXrpm1TApX7C7aTQ=s4800-w2689-h2477".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZNb30IR73XBO5D7nEYVjoRlhGGqJRC9XVeTXMO-MnAfj5iYKVA8hTsXlerzCqdRC5mlhv-_LuGbPjVEzFXADslmm6eTTUCqopQsfox1GykinOStBYQkHxcM85Gg6erZJu4Osl2t-CZEykksbQ=s4800-w2689-h2477".toUri()
         ),
         MyPlace(
             id = "ChIJn3WoRhBHWBQRuhsCgung4tQ",
             displayName = "Hanging Church",
             formattedAddress = "Old Cairo, Cairo",
             location = LatLng(30.0052389, 31.2301689),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHlonKRFOHn9n9NXIVh5cORHE7uaOWz99FsDiD7GZZVHn4oCGpRyCGLiPv4L6tbk3hIyOzCrlE3q6L0zSMzxqWapzkSFAqB4HD4xnJO3TQlKxKo8mjwOxUPN3evpV5-TiZKPRbk8OG7QOp72XM=s4800-w529-h398".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZOOAyTbQ3mPTcI-3wjM67Iwn9oC5afdXO_ATSGvQ2-fbxx7C6GiBGOoDZxOO2C0R8hkLDucOyph0gnERfEtjDKMPUlDs3brOCGqQvNW5sEhaMK7YI9AYJLwcodCWibT9ZGNtIIn2dfi98XROwU=s4800-w529-h398".toUri()
         ),
         MyPlace(
             id = "ChIJuxEpKFLD9RQRHz2y-AiDn-U",
             displayName = "Qaitbay Citadel",
             formattedAddress = "Al Gomrok, Alexandria ",
             location = LatLng(31.213698700000002, 29.8853921),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNHmtW_yPXAw9S30ReqCzifsU_ezWNHJJIg008EM1JLjCi6MbVUjlIsAkPpol5U6W1-XgjKjjQQx8AP13lD4RryzeeNsNCva3fDhK23whJqOkMVhhfIvHxaRiO23dHg1Pl-EatSrbYsY0TJdzQ=s4800-w4800-h3600".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZMIRL9Zgi8mmb0gDORXRHs6z_JpyttwYkJ4mdjclpgGPsb4Qn6ZcClGKAbE1zh1fjljBWRC1a1OnJO6-raMX49EazToqJKvZYX0yxtz7iRGB_UIDrIgzxnqhjUrxwxcytx2mTpwC-54YFzxAg=s4800-w4800-h3600".toUri()
         ),
         MyPlace(
             id = "ChIJuXeJLNtiNhQReOUrg0ms8pk",
             displayName = "Philae Temple",
             formattedAddress = "Aswan 1, Aswan",
             location = LatLng(24.025583599999997, 32.8841021),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNEeqOoUcCMhDEu2pGxrpEQ12sTRs72dGrXctov5LIkQMqlILwATH2q_VocAyg23x-vv3YAQ000Z93xqLk-Tn5OmV8VEV3FDRpBRtxCFGR8FwbD8eHxWK4m4s7TF_vvZuNC-umJmAzwjySvKnQ=s4800-w4032-h3024".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZMu7c_fwcJoRTmEkjuqaiH8xSUcoET5QiYT_OnOGi3gnxTV7xZxPF9UoJu8IwfdoXkylgCDgsZzArPOmzgl5AM2qHWEmocLGlDeA-PpLNFjlm-qF-BIH9ATpnkESo1k53DsLQm1qrantfmLHQ=s4800-w4032-h3024".toUri()
         ),
         MyPlace(
             id = "ChIJWwUmsYipOhQR0pj4GGbM06c",
             displayName = "Abu Simbel Temples",
             formattedAddress = "Abu Simbel, Aswan",
             location = LatLng(22.3372319, 31.625798999999997),
-            imageUri = "https://lh3.googleusercontent.com/place-photos/AL8-SNFYQhsJpbd-n4O1yUZw6hX16NJj2pda_BVDZiN3yvgZXchBWxY4_e0ll8215F8OvfixgIVVbSYUcD7oSZ0jo7MWGu1yoN9PAm78I-tNYgQGK21t94XbQ_yo3bJwX9YaJGKJoTgdKlu5qZbB7w=s4800-w4800-h3614".toUri()
+            imageUri = "https://lh3.googleusercontent.com/place-photos/AJRVUZMu7c_fwcJoRTmEkjuqaiH8xSUcoET5QiYT_OnOGi3gnxTV7xZxPF9UoJu8IwfdoXkylgCDgsZzArPOmzgl5AM2qHWEmocLGlDeA-PpLNFjlm-qF-BIH9ATpnkESo1k53DsLQm1qrantfmLHQ=s4800-w4032-h3024".toUri()
         )
     )
 
