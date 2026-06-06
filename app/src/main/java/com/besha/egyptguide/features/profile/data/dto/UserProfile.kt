@@ -1,6 +1,4 @@
-package com.besha.egyptguide.features.profile.data.model
-
-import android.net.Uri
+package com.besha.egyptguide.features.profile.data.dto
 
 data class UserProfile(
     val email: String? = null,

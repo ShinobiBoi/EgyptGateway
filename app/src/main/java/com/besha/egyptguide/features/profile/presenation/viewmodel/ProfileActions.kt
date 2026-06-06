@@ -1,8 +1,7 @@
 package com.besha.egyptguide.features.profile.presenation.viewmodel
 
 import com.besha.egyptguide.appcore.mvi.Action
-import com.besha.egyptguide.appcore.notification.alarm.AlarmItem
-import com.besha.egyptguide.features.profile.data.model.UpdateProfileRequest
+import com.besha.egyptguide.features.profile.data.dto.UpdateProfileRequest
 
 sealed class ProfileActions : Action {
     object GetProfile : ProfileActions()

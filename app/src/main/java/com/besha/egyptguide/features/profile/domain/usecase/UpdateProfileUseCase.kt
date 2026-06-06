@@ -1,6 +1,6 @@
 package com.besha.egyptguide.features.profile.domain.usecase
 
-import com.besha.egyptguide.features.profile.data.model.UpdateProfileRequest
+import com.besha.egyptguide.features.profile.data.dto.UpdateProfileRequest
 import com.besha.egyptguide.features.profile.domain.repo.ProfileRepo
 import javax.inject.Inject
 

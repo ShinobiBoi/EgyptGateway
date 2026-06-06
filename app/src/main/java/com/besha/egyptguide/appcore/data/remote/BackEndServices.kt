@@ -6,11 +6,13 @@ import com.besha.egyptguide.features.camera.data.model.RatingRequest
 import com.besha.egyptguide.features.camera.data.model.RatingResponse
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardList
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardListItem
-import com.besha.egyptguide.features.profile.data.model.UserProfile
+import com.besha.egyptguide.features.profile.data.dto.UserProfile
 import com.besha.egyptguide.features.quiz.data.model.Quiz
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizResponse
 import com.besha.egyptguide.features.camera.data.model.VisitRequest
 import com.besha.egyptguide.features.camera.data.model.VisitResponse
+import com.besha.egyptguide.features.objectives.data.dto.MonumentObjectivesResponse
+import com.besha.egyptguide.features.objectives.data.dto.TicketObjectivesResponse
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizRequest
 import com.besha.egyptguide.features.tickets.data.dto.GetTicketResponse
 import com.besha.egyptguide.features.tickets.data.dto.SubmitTicketResponse
@@ -87,12 +89,13 @@ interface BackEndServices {
     @GET("/leaderboard")
     suspend fun getLeaderboard():Response<LeaderboardList>
 
-    //leaderboard///////////////////////////////////////////////////
+
     @GET("/leaderboard/me")
     suspend fun getCurrentRank():Response<LeaderboardListItem>
 
 
 
+    //monument///////////////////////////////////////////////////
 
     @Multipart
     @POST("monuments/identify")
@@ -101,6 +104,8 @@ interface BackEndServices {
     ): Response<IdentifyResponse>
 
 
+
+    //tickets///////////////////////////////////////////////////
     @Multipart
     @POST("tickets/submit")
     suspend fun submitTicket(
@@ -119,6 +124,16 @@ interface BackEndServices {
     suspend fun getTicketDetails(
         @Path("ticket_id") ticketId: String
     ): Response<TicketDetailsResponse>
+
+    //objectives///////////////////////////////////////////////////
+
+    @GET("objectives/my")
+    suspend fun monumentObjectives(
+    ): Response<MonumentObjectivesResponse>
+
+    @GET("objectives/tickets")
+    suspend fun ticketObjectives(
+    ): Response<TicketObjectivesResponse>
 
 
 }

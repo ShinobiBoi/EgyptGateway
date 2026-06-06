@@ -1,9 +1,8 @@
 package com.besha.egyptguide.features.profile.data.repo
 
-import android.util.Log
 import com.besha.egyptguide.appcore.data.model.DataState
-import com.besha.egyptguide.features.profile.data.model.UpdateProfileRequest
-import com.besha.egyptguide.features.profile.data.model.UserProfile
+import com.besha.egyptguide.features.profile.data.dto.UpdateProfileRequest
+import com.besha.egyptguide.features.profile.data.dto.UserProfile
 import com.besha.egyptguide.features.profile.domain.remote.ProfileRemoteClient
 import com.besha.egyptguide.features.profile.domain.repo.ProfileRepo
 import javax.inject.Inject

@@ -5,7 +5,7 @@ import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
 import com.besha.egyptguide.appcore.notification.alarm.AlarmItem
 import com.besha.egyptguide.appcore.notification.alarm.AlarmScheduler
-import com.besha.egyptguide.features.profile.data.model.UserProfile
+import com.besha.egyptguide.features.profile.data.dto.UserProfile
 import com.besha.egyptguide.features.profile.domain.usecase.GetProfileUseCase
 import com.besha.egyptguide.features.profile.domain.usecase.LogOutUseCase
 import com.besha.egyptguide.features.profile.domain.usecase.UpdateProfileUseCase
@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import javax.inject.Inject
 
 

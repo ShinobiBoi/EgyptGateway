@@ -1,6 +1,5 @@
-package com.besha.egyptguide.features.profile.data.model
+package com.besha.egyptguide.features.profile.data.dto
 
-import android.net.Uri
 import okhttp3.MultipartBody
 
 data class UpdateProfileRequest(

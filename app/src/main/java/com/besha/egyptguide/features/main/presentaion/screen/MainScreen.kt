@@ -23,6 +23,7 @@ import com.besha.egyptguide.features.leaderboard.presenation.screen.LeaderboardS
 import com.besha.egyptguide.features.main.presentaion.components.CustomBottomNavigationBar
 import com.besha.egyptguide.features.main.presentaion.viewmodel.BottomNavViewModel
 import com.besha.egyptguide.features.maps.presentaion.screen.MapsScreen
+import com.besha.egyptguide.features.objectives.presentaion.screen.ObjectivesScreen
 import com.besha.egyptguide.features.placedetails.presentation.screen.PlaceDetailsScreen
 import com.besha.egyptguide.features.profile.presenation.screen.ProfileScreen
 import com.besha.egyptguide.features.quiz.presentation.screen.QuizScreen
@@ -43,7 +44,6 @@ fun MainScreen(rootController: NavController,category: String?) {
 
 
     LaunchedEffect(category) {
-
         if (category != null) {
             navController.navigate(ScreenResources.MapsRoute)
         }
@@ -66,6 +66,7 @@ fun MainScreen(rootController: NavController,category: String?) {
                 currentRoute !is ScreenResources.TicketsRoute &&
                 currentRoute !is ScreenResources.SubmitTicketRoute &&
                 currentRoute !is ScreenResources.TicketDetailsRoute &&
+                currentRoute !is ScreenResources.ObjectivesRoute &&
                 currentRoute !is ScreenResources.LeaderboardRoute
                 )
             CustomBottomNavigationBar(currentRoute) { selectedRoute ->
@@ -176,6 +177,13 @@ fun MainScreen(rootController: NavController,category: String?) {
                     onBackClick = { navController.navigateUp() }
                 )
             }
+
+            composable<ScreenResources.ObjectivesRoute> {
+                ObjectivesScreen(
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
         }
     }
 }

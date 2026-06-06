@@ -1,11 +1,9 @@
 package com.besha.egyptguide.features.profile.data.remote
 
-import android.provider.ContactsContract
-import android.util.Log
 import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.data.remote.BackEndServices
-import com.besha.egyptguide.features.profile.data.model.UpdateProfileRequest
-import com.besha.egyptguide.features.profile.data.model.UserProfile
+import com.besha.egyptguide.features.profile.data.dto.UpdateProfileRequest
+import com.besha.egyptguide.features.profile.data.dto.UserProfile
 import com.besha.egyptguide.features.profile.domain.remote.ProfileRemoteClient
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth

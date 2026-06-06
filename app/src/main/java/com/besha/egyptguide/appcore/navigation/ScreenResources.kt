@@ -47,6 +47,9 @@ sealed class ScreenResources {
     object SubmitTicketRoute : ScreenResources()
 
     @Serializable
+    object ObjectivesRoute : ScreenResources()
+
+    @Serializable
     data class TicketDetailsRoute(
         val ticketId: String
     ) : ScreenResources()
@@ -88,6 +91,7 @@ sealed class ScreenResources {
                 route.contains(ProfileRoute::class.qualifiedName ?: "") -> ProfileRoute
                 route.contains(TicketsRoute::class.qualifiedName ?: "") -> TicketsRoute
                 route.contains(SubmitTicketRoute::class.qualifiedName ?: "") -> SubmitTicketRoute
+                route.contains(ObjectivesRoute::class.qualifiedName ?: "") -> ObjectivesRoute
                 route.contains(TicketDetailsRoute::class.qualifiedName ?: "") -> TicketDetailsRoute("")
                 route.contains(LeaderboardRoute::class.qualifiedName ?: "") -> LeaderboardRoute("")
                 route.contains(PlaceDetailsRoute::class.qualifiedName ?: "") -> PlaceDetailsRoute()
