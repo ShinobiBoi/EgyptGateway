@@ -1,12 +1,14 @@
 package com.besha.egyptguide.features.maps.presentaion.components
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
@@ -14,13 +16,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.data.model.MyPlace
@@ -29,106 +34,150 @@ import com.besha.egyptguide.appcore.data.model.MyPlace
 fun SelectedPlacesSheet(
     place: MyPlace,
     onBackClick: () -> Unit,
-    onDetailsClick: (MyPlace) -> Unit
+    onDetailsClick: (MyPlace) -> Unit // kept but not used anymore if you want
 ) {
+
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
-            .padding(bottom = 24.dp)
+            .background(colorResource(R.color.surface_white))
+            .padding(bottom = 28.dp)
     ) {
-        // Handle Bar
+
+        // Drag handle
         Box(
             modifier = Modifier
-                .padding(vertical = 12.dp)
-                .width(40.dp)
-                .height(4.dp)
-                .background(Color.LightGray, RoundedCornerShape(2.dp))
                 .align(Alignment.CenterHorizontally)
+                .padding(top = 12.dp, bottom = 16.dp)
+                .width(36.dp)
+                .height(4.dp)
+                .clip(CircleShape)
+                .background(colorResource(R.color.text_secondary).copy(alpha = 0.2f))
         )
 
+        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp),
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(
+            Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
+                    .background(colorResource(R.color.blue_surface))
                     .clickable { onBackClick() },
-                color = Color(0xFFF5F5F5)
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    modifier = Modifier.padding(6.dp),
-                    tint = Color.Black
+                    tint = colorResource(R.color.blue),
+                    modifier = Modifier.size(18.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(Modifier.width(14.dp))
 
             Text(
                 text = stringResource(R.string.selected_place),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
+                fontSize = 18.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = colorResource(R.color.text_primary)
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-        ) {
-            AsyncImage(
-                model = place.imageUri,
-                contentDescription = place.displayName,
+            // Image
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.location_ic)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = place.displayName ?: "",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = colorResource(R.color.pink)
+                    .height(190.dp)
+                    .clip(RoundedCornerShape(20.dp))
+            ) {
+                AsyncImage(
+                    model = place.imageUri,
+                    contentDescription = place.displayName,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(R.drawable.location_ic)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = place.formattedAddress ?: "",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f))
+                            )
+                        )
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
+            Text(
+                text = place.displayName ?: "",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Black,
+                color = colorResource(R.color.text_primary)
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // Address (REMOVED pink → replaced with blue accent)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(colorResource(R.color.blue_surface)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = colorResource(R.color.blue),
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+
+                Spacer(Modifier.width(8.dp))
+
+                Text(
+                    text = place.formattedAddress ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colorResource(R.color.text_secondary),
+                    maxLines = 2
+                )
+            }
+
+            Spacer(Modifier.height(22.dp))
+
+            // ✅ GET DIRECTIONS BUTTON (Google Maps Intent)
             Button(
-                onClick = { onDetailsClick(place) },
+                onClick = {
+                    val lat = place.location?.latitude
+                    val lng = place.location?.longitude
+
+                    if (lat != null && lng != null) {
+                        val uri = Uri.parse("google.navigation:q=$lat,$lng")
+                        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                            setPackage("com.google.android.apps.maps")
+                        }
+                        context.startActivity(intent)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(54.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(R.color.blue),
@@ -136,15 +185,15 @@ fun SelectedPlacesSheet(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Info,
+                    imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "View Details",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    text = "Get Directions",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
                 )
             }
         }

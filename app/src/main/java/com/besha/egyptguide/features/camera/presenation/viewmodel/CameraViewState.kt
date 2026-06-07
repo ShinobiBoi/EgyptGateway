@@ -4,8 +4,8 @@ import android.net.Uri
 import com.besha.egyptguide.appcore.data.remote.IdentifyResponse
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.ViewState
-import com.besha.egyptguide.features.camera.data.model.RatingResponse
-import com.besha.egyptguide.features.camera.data.model.VisitResponse
+import com.besha.egyptguide.features.camera.data.dto.RatingResponse
+import com.besha.egyptguide.features.camera.data.dto.VisitResponse
 
 data class CameraViewState(
     val identificationResult: CommonViewState<IdentifyResponse> = CommonViewState(),

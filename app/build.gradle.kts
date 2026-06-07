@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.hilt.compiler)
 
     // Maps SDK for Android

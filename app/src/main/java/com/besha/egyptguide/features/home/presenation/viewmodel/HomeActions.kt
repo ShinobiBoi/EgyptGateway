@@ -6,6 +6,8 @@ import com.google.android.gms.maps.model.LatLng
 
 sealed class HomeActions : Action {
     object GetCurrentLocation : HomeActions()
+
+    object GetMonuments : HomeActions()
     data class SelectGenre( val genre: GenreType, val location: LatLng) : HomeActions()
 
 }

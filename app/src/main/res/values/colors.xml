@@ -10,8 +10,17 @@
     <color name="off_white">#FFFAFAFA</color>
     <color name="background_white">#FFFEFEFE</color>
     <color name="gray">#FF6C7278</color>
-    <color name="blue">#FF2c3eb5</color>
+    <color name="blue">#FF1565C0</color>
+    <color name="blue_light">#FF1E88E5</color>
+    <color name="blue_surface">#FFE3F0FC</color>
+    <color name="blue_dim">#FFF0F7FF</color>
+    <color name="gold_star">#FFFFB800</color>
     <color name="pink">#FFE91E63</color>
     <color name="stroke_gray">#FFEDF1F3</color>
+    <color name="text_primary">#FF0D1B2A</color>
+    <color name="text_secondary">#FF5A6A7A</color>
+    <color name="surface_white">#FFFFFFFF</color>
+    <color name="divider_color">#FFE8EFF7</color>
+
 
 </resources>

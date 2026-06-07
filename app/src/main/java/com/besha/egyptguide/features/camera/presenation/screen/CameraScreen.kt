@@ -2,7 +2,6 @@ package com.besha.egyptguide.features.camera.presenation.screen
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -40,12 +39,11 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.navigation.ScreenResources
-import com.besha.egyptguide.features.camera.data.model.CameraScreenResponse
+import com.besha.egyptguide.features.camera.data.dto.CameraScreenResponse
 import com.besha.egyptguide.features.camera.presenation.viewmodel.CameraActions
 import com.besha.egyptguide.features.camera.presenation.viewmodel.CameraViewModel
-import com.besha.egyptguide.features.camera.data.model.RatingRequest
-import com.besha.egyptguide.features.camera.data.model.VisitRequest
-import com.besha.egyptguide.features.camera.data.model.VisitResponse
+import com.besha.egyptguide.features.camera.data.dto.RatingRequest
+import com.besha.egyptguide.features.camera.data.dto.VisitRequest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody

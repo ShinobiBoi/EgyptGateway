@@ -4,6 +4,7 @@ import android.Manifest
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,14 +13,20 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
@@ -27,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.navigation.ScreenResources
@@ -36,8 +44,8 @@ import com.besha.egyptguide.features.maps.presentaion.components.SelectedPlacesS
 import com.besha.egyptguide.features.maps.presentaion.viewmodel.MapsActions
 import com.besha.egyptguide.features.maps.presentaion.viewmodel.MapsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.model.PlaceTypes
 import com.google.maps.android.compose.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,7 +54,6 @@ fun MapsScreen(
     category: String?,
     onNavigateToDetails: (ScreenResources.PlaceDetailsRoute) -> Unit,
 ) {
-
     val viewModel = hiltViewModel<MapsViewModel>()
     val state by viewModel.viewStates.collectAsState()
     val cameraPositionState = rememberCameraPositionState()
@@ -61,84 +68,50 @@ fun MapsScreen(
         )
     )
 
-    // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         hasLocationPermission = granted
-        if (granted) {
-            viewModel.executeAction(MapsActions.GetCurrentLocation)
-        }
+        if (granted) viewModel.executeAction(MapsActions.GetCurrentLocation)
     }
-
-
 
     LaunchedEffect(Unit) {
         permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
-    // Animate to current location once
     LaunchedEffect(state.currentLocation.data) {
         state.currentLocation.data?.let { latLng ->
             if (!state.isCurrentlocationLoaded) {
-                cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(latLng, 15f),
-                    durationMs = 800
-                )
+                cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, 15f), 800)
                 viewModel.executeAction(MapsActions.CurrentLocationLoaded)
                 if (category != null) {
-                    Log.d("TAG", "MapsScreen: $category")
-                    Log.d("TAG", "MapsScreen: $latLng")
-                    viewModel.executeAction(
-                        MapsActions.SearchByText(
-                            latLng,
-                            category
-                        )
-                    )
+                    viewModel.executeAction(MapsActions.SearchByText(latLng, category))
                 }
-
             }
         }
     }
 
-
-    // Expand sheet when nearby places arrive
     LaunchedEffect(state.nearByPlaces.data) {
         if (!state.nearByPlaces.data.isNullOrEmpty()) {
             scaffoldState.bottomSheetState.expand()
             state.currentLocation.data?.let { latLng ->
-
-                val offsetLatLng = LatLng(
-                    latLng.latitude - 0.01,   // move camera target slightly north
-                    latLng.longitude
-                )
-
                 cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(offsetLatLng, 12f),
-                    durationMs = 800
+                    CameraUpdateFactory.newLatLngZoom(LatLng(latLng.latitude - 0.01, latLng.longitude), 12f), 800
                 )
             }
         }
-
         isSearchFocused = false
-
         if (state.selectedPlace.data == null && state.nearByPlaces.data.isNullOrEmpty() && scaffoldState.bottomSheetState.isVisible) {
             scaffoldState.bottomSheetState.partialExpand()
         }
     }
 
-    // Animate when a place is selected
     LaunchedEffect(state.selectedPlace.data) {
         state.selectedPlace.data?.location?.let { latLng ->
             scaffoldState.bottomSheetState.expand()
-            cameraPositionState.animate(
-                CameraUpdateFactory.newLatLngZoom(latLng, 16f),
-                durationMs = 800
-            )
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, 16f), 800)
         }
-
         isSearchFocused = false
-
         if (state.selectedPlace.data == null && state.nearByPlaces.data.isNullOrEmpty() && scaffoldState.bottomSheetState.isVisible) {
             scaffoldState.bottomSheetState.partialExpand()
         }
@@ -146,18 +119,16 @@ fun MapsScreen(
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        sheetPeekHeight = if (state.nearByPlaces.data.isNullOrEmpty() && state.selectedPlace.data == null) 0.dp else 100.dp,
-        sheetShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        sheetContainerColor = Color.White,
-        sheetShadowElevation = 16.dp,
-        sheetDragHandle = null, // Custom handle in components
+        sheetPeekHeight = if (state.nearByPlaces.data.isNullOrEmpty() && state.selectedPlace.data == null) 0.dp else 110.dp,
+        sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+        sheetContainerColor = colorResource(R.color.surface_white),
+        sheetShadowElevation = 20.dp,
+        sheetDragHandle = null,
         sheetContent = {
-            if (state.selectedPlace.data != null) {
-                SelectedPlacesSheet(
+            when {
+                state.selectedPlace.data != null -> SelectedPlacesSheet(
                     place = state.selectedPlace.data!!,
-                    onBackClick = {
-                        viewModel.executeAction(MapsActions.EmptySelectedPlace)
-                    },
+                    onBackClick = { viewModel.executeAction(MapsActions.EmptySelectedPlace) },
                     onDetailsClick = { place ->
                         onNavigateToDetails(
                             ScreenResources.PlaceDetailsRoute(
@@ -171,278 +142,279 @@ fun MapsScreen(
                         )
                     }
                 )
-            } else if (!state.nearByPlaces.data.isNullOrEmpty()) {
-                NearbyPlacesSheet(
+                !state.nearByPlaces.data.isNullOrEmpty() -> NearbyPlacesSheet(
                     places = state.nearByPlaces.data!!,
                     onPlaceClick = { place ->
                         place.location?.let {
-                            viewModel.executeAction(
-                                MapsActions.SelectPlace(
-                                    place.id!!,
-                                    state.sessionToken
-                                )
-                            )
+                            viewModel.executeAction(MapsActions.SelectPlace(place.id!!, state.sessionToken))
                         }
                     },
-                    onCloseClick = {
-                        viewModel.executeAction(MapsActions.EmptyNearBySearch)
-                    }
+                    onCloseClick = { viewModel.executeAction(MapsActions.EmptyNearBySearch) }
                 )
-            } else {
-                Box(Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(Color.Transparent))
+                else -> Box(Modifier.fillMaxWidth().height(1.dp).background(Color.Transparent))
             }
-        },
+        }
     ) { paddingValues ->
 
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)) {
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
 
+            // ── Map ───────────────────────────────────────────────────────
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
                 onMapClick = { focusManager.clearFocus() },
-                properties = MapProperties(
-                    isMyLocationEnabled = hasLocationPermission,
-
-                ),
-                uiSettings = MapUiSettings(
-                    myLocationButtonEnabled = false,
-                    zoomControlsEnabled = false
-                )
+                properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
+                uiSettings = MapUiSettings(myLocationButtonEnabled = false, zoomControlsEnabled = false)
             ) {
 
-                // Selected place marker
-                state.selectedPlace.data?.location?.let { latLng ->
-                    Marker(
-                        state = MarkerState(position = latLng),
-                        title = state.selectedPlace.data?.displayName ?: "",
-                        snippet = state.selectedPlace.data?.formattedAddress ?: "",
-                    )
-                }
 
-                // Nearby markers
+                // Nearby markers — pink accent
                 state.nearByPlaces.data?.forEach { place ->
                     place.location?.let { latLng ->
-                        Marker(
+                        MarkerComposable(
                             state = MarkerState(position = latLng),
                             title = place.displayName ?: "",
                             snippet = place.formattedAddress ?: "",
-                            onClick = { _->
-                                viewModel.executeAction(
-                                    MapsActions.SelectPlace(
-                                        place.id!!,
-                                        state.sessionToken
-                                    )
-                                )
-                                return@Marker true
+                            onClick = {
+                                viewModel.executeAction(MapsActions.SelectPlace(place.id!!, state.sessionToken))
+                                true
                             }
-                        )
+                        ) {
+                            ModernMarker(
+                                color = colorResource(R.color.blue),
+                                isSelected = false
+                            )
+                        }
                     }
                 }
             }
 
-            // Search UI
+            // ── Search overlay ────────────────────────────────────────────
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 40.dp),
+                    .statusBarsPadding()
+                    .padding(top = 12.dp)
             ) {
-
-                TextField(
-                    value = state.query,
-                    onValueChange = {
-                        viewModel.executeAction(
-                            MapsActions.OnQueryChange(
-                                it,
-                                state.sessionToken
-                            )
-                        )
-                        isSearchFocused = true
-                    },
+                // Search bar
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                        .height(56.dp)
-                        .onFocusChanged {
-                            isSearchFocused = it.isFocused
-                        },
-                    placeholder = {
-                        Text(
-                            stringResource(R.string.search_location),
-                            color = Color.Gray
+                        .shadow(
+                            elevation = if (isSearchFocused) 12.dp else 6.dp,
+                            shape = RoundedCornerShape(18.dp),
+                            ambientColor = colorResource(R.color.blue).copy(alpha = 0.15f),
+                            spotColor = colorResource(R.color.blue).copy(alpha = 0.2f)
                         )
-                    },
-                    singleLine = true,
-                    trailingIcon = {
-                        if (state.query.isNotEmpty()) {
-                            IconButton(onClick = {
-                                viewModel.executeAction(
-                                    MapsActions.ResetState(
-                                        state.sessionToken,
-                                        state.currentLocation.data!!,
-                                        state.isCurrentlocationLoaded
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(colorResource(R.color.surface_white))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(54.dp)
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = if (isSearchFocused) colorResource(R.color.blue) else colorResource(R.color.text_secondary),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(10.dp))
+                        BasicTextField(
+                            value = state.query,
+                            onValueChange = {
+                                viewModel.executeAction(MapsActions.OnQueryChange(it, state.sessionToken))
+                                isSearchFocused = true
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .onFocusChanged { isSearchFocused = it.isFocused },
+                            singleLine = true,
+                            textStyle = LocalTextStyle.current.copy(
+                                color = colorResource(R.color.text_primary),
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            decorationBox = { inner ->
+                                if (state.query.isEmpty()) {
+                                    Text(
+                                        stringResource(R.string.search_location),
+                                        color = colorResource(R.color.text_secondary),
+                                        fontSize = 15.sp
                                     )
-                                )
-                            }) {
+                                }
+                                inner()
+                            }
+                        )
+                        AnimatedVisibility(
+                            visible = state.query.isNotEmpty(),
+                            enter = fadeIn() + scaleIn(),
+                            exit = fadeOut() + scaleOut()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(CircleShape)
+                                    .background(colorResource(R.color.blue_surface))
+                                    .clickable {
+                                        viewModel.executeAction(
+                                            MapsActions.ResetState(
+                                                state.sessionToken,
+                                                state.currentLocation.data!!,
+                                                state.isCurrentlocationLoaded
+                                            )
+                                        )
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Icon(
-                                    imageVector = Icons.Default.Close,
+                                    Icons.Default.Close,
                                     contentDescription = stringResource(R.string.clear),
-                                    tint = Color.Black
+                                    tint = colorResource(R.color.blue),
+                                    modifier = Modifier.size(14.dp)
                                 )
                             }
                         }
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = colorResource(R.color.pink)
-                        )
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        cursorColor = colorResource(R.color.pink)
-                    )
-                )
+                    }
+                }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(Modifier.height(10.dp))
 
-                state.predictions.data?.let { predictionsList ->
-                    if (state.query.isNotEmpty() && isSearchFocused) {
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .heightIn(max = 300.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            elevation = CardDefaults.cardElevation(8.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
-                        ) {
-
-                            LazyColumn {
-                                item {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                state.currentLocation.data?.let {
-                                                    viewModel.executeAction(
-                                                        MapsActions.SearchByText(
-                                                            it,
-                                                            state.query
-                                                        )
-                                                    )
-                                                }
-                                                focusManager.clearFocus()
+                // Autocomplete dropdown
+                AnimatedVisibility(
+                    visible = state.query.isNotEmpty() && isSearchFocused && !state.predictions.data.isNullOrEmpty(),
+                    enter = fadeIn() + expandVertically(),
+                    exit = fadeOut() + shrinkVertically()
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .heightIn(max = 300.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(containerColor = colorResource(R.color.surface_white)),
+                        elevation = CardDefaults.cardElevation(8.dp)
+                    ) {
+                        LazyColumn {
+                            // "Search nearby" fast-action row
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            state.currentLocation.data?.let {
+                                                viewModel.executeAction(MapsActions.SearchByText(it, state.query))
                                             }
-                                            .padding(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Surface(
-                                            modifier = Modifier.size(36.dp),
-                                            shape = CircleShape,
-                                            color = Color(0xFFFCE4EC)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.LocationOn,
-                                                contentDescription = null,
-                                                modifier = Modifier.padding(8.dp),
-                                                tint = colorResource(R.color.pink)
-                                            )
+                                            focusManager.clearFocus()
                                         }
-
-                                        Spacer(modifier = Modifier.width(16.dp))
-
-                                        Column {
-                                            Text(
-                                                text = state.query,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.Black
-                                            )
-                                            Text(
-                                                text = stringResource(R.string.search_nearby_places),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = Color.Gray
-                                            )
-                                        }
-                                    }
-                                }
-
-                                items(predictionsList) { prediction ->
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        thickness = 0.5.dp,
-                                        color = Color.LightGray
-                                    )
-                                    Row(
+                                        .padding(14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                viewModel.executeAction(
-                                                    MapsActions.OnQueryChange(
-                                                        prediction.getPrimaryText(null).toString(),
-                                                        state.sessionToken
-                                                    )
-                                                )
-                                                viewModel.executeAction(
-                                                    MapsActions.SelectPlace(
-                                                        prediction.placeId,
-                                                        state.sessionToken
-                                                    )
-                                                )
-                                                viewModel.executeAction(
-                                                    MapsActions.EmptyNearBySearch
-                                                )
-                                                focusManager.clearFocus()
-                                            }
-                                            .padding(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                            .size(38.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(colorResource(R.color.blue_surface)),
+                                        contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.location_ic),
+                                            Icons.Default.Search,
                                             contentDescription = null,
-                                            modifier = Modifier.size(20.dp),
-                                            tint = Color.Gray
+                                            tint = colorResource(R.color.blue),
+                                            modifier = Modifier.size(18.dp)
                                         )
+                                    }
+                                    Spacer(Modifier.width(14.dp))
+                                    Column {
+                                        Text(
+                                            text = state.query,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = colorResource(R.color.text_primary)
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.search_nearby_places),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = colorResource(R.color.text_secondary)
+                                        )
+                                    }
+                                }
+                            }
 
-                                        Spacer(modifier = Modifier.width(16.dp))
-
-                                        Column {
-                                            Text(
-                                                text = prediction.getPrimaryText(null).toString(),
-                                                fontWeight = FontWeight.Medium,
-                                                color = Color.Black
+                            items(state.predictions.data ?: emptyList()) { prediction ->
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 14.dp),
+                                    thickness = 0.5.dp,
+                                    color = colorResource(R.color.divider_color)
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            viewModel.executeAction(
+                                                MapsActions.OnQueryChange(
+                                                    prediction.getPrimaryText(null).toString(),
+                                                    state.sessionToken
+                                                )
                                             )
-                                            Text(
-                                                text = prediction.getSecondaryText(null).toString(),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = Color.Gray,
-                                                maxLines = 1
+                                            viewModel.executeAction(
+                                                MapsActions.SelectPlace(prediction.placeId, state.sessionToken)
                                             )
+                                            viewModel.executeAction(MapsActions.EmptyNearBySearch)
+                                            focusManager.clearFocus()
                                         }
+                                        .padding(14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(38.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(colorResource(R.color.stroke_gray)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            Icons.Default.LocationOn,
+                                            contentDescription = null,
+                                            tint = colorResource(R.color.text_secondary),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                    Spacer(Modifier.width(14.dp))
+                                    Column {
+                                        Text(
+                                            text = prediction.getPrimaryText(null).toString(),
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 14.sp,
+                                            color = colorResource(R.color.text_primary),
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = prediction.getSecondaryText(null).toString(),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = colorResource(R.color.text_secondary),
+                                            maxLines = 1
+                                        )
                                     }
                                 }
                             }
                         }
-                    } else {
-                        MapsGenreList {
-                            state.currentLocation.data?.let { location ->
-                                viewModel.executeAction(
-                                    MapsActions.NearBySearch(
-                                        location,
-                                        listOf(it)
-                                    )
-                                )
-                            }
+                    }
+                }
+
+                // Genre chips (shown when not searching)
+                AnimatedVisibility(
+                    visible = !(state.query.isNotEmpty() && isSearchFocused),
+                    enter = fadeIn() + expandVertically(),
+                    exit = fadeOut() + shrinkVertically()
+                ) {
+                    MapsGenreList {
+                        state.currentLocation.data?.let { location ->
+                            viewModel.executeAction(MapsActions.NearBySearch(location, listOf(it)))
                         }
                     }
                 }
@@ -451,56 +423,112 @@ fun MapsScreen(
     }
 }
 
+// ── Custom map marker ─────────────────────────────────────────────────────────
+
+@Composable
+fun ModernMarker(color: Color, isSelected: Boolean) {
+    Box(contentAlignment = Alignment.BottomCenter) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                modifier = Modifier
+                    .size(if (isSelected) 46.dp else 36.dp)
+                    .shadow(
+                        elevation = if (isSelected) 8.dp else 4.dp,
+                        shape = RoundedCornerShape(
+                            topStart = 50f, topEnd = 50f,
+                            bottomStart = 50f, bottomEnd = 12f
+                        )
+                    )
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 50f, topEnd = 50f,
+                            bottomStart = 50f, bottomEnd = 12f
+                        )
+                    )
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(color.copy(alpha = 0.85f), color)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(if (isSelected) 24.dp else 18.dp)
+                )
+            }
+            // Pin tail
+            Box(
+                modifier = Modifier
+                    .width(2.dp)
+                    .height(6.dp)
+                    .background(color)
+            )
+        }
+
+        // Pulse ring for selected
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.12f))
+                    .align(Alignment.Center)
+            )
+        }
+    }
+}
+
+// ── Genre chips ───────────────────────────────────────────────────────────────
 
 @Composable
 fun MapsGenreList(onCardClick: (String) -> Unit) {
-
-
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp, start = 8.dp, end = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
+            .padding(top = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-
         items(GenreType.entries) { genre ->
-
-
-            Card(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .clickable(onClick = {
-                        onCardClick(genre.placeTypes)
-                    }
-                    ),
-                shape = RoundedCornerShape(20.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                colors = CardDefaults.cardColors(containerColor = colorResource(R.color.off_white))
+            Surface(
+                onClick = { onCardClick(genre.placeTypes) },
+                shape = RoundedCornerShape(14.dp),
+                color = colorResource(R.color.surface_white),
+                shadowElevation = 4.dp,
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp, colorResource(R.color.divider_color)
+                )
             ) {
                 Row(
-                    modifier = Modifier
-                        .padding(8.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-
-
-                    ) {
-
-                    Icon(
-                        painter = painterResource(id = genre.icon),
-                        contentDescription = genre.title,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
                         modifier = Modifier
-                            .size(16.dp),
-                        tint = Color.Black
-                    )
-
+                            .size(26.dp)
+                            .clip(CircleShape)
+                            .background(colorResource(R.color.blue_surface)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = genre.icon),
+                            contentDescription = genre.title,
+                            modifier = Modifier.size(14.dp),
+                            tint = colorResource(R.color.blue)
+                        )
+                    }
                     Text(
                         text = genre.title,
-                        modifier = Modifier
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colorResource(R.color.text_primary)
                     )
                 }
             }
         }
     }
 }
-

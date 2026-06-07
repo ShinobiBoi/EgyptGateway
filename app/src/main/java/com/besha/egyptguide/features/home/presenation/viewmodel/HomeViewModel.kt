@@ -1,10 +1,12 @@
 package com.besha.egyptguide.features.home.presenation.viewmodel
 
+import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.data.remote.BackEndServices
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
 import com.besha.egyptguide.features.home.domain.usecase.NearBySearchUseCase
 import com.besha.egyptguide.features.maps.domain.usecases.CurrentLocationUseCase
+import com.besha.egyptguide.features.monuments.domain.usecase.GetMonumentsUseCase
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val nearBySearchUseCase: NearBySearchUseCase,
+    private val getMonumentsUseCase: GetMonumentsUseCase,
     private val getCurrentLocationUseCase: CurrentLocationUseCase,
 ) : MVIBaseViewModel<HomeActions, HomeResults, HomeViewState>() {
 
@@ -47,8 +50,31 @@ class HomeViewModel @Inject constructor(
                 }
                 handleGetPlaces(action.location, this, placeType)
             }
+
+            is HomeActions.GetMonuments ->{
+                handleGetMonuments(this)
+            }
         }
 
+    }
+
+    private suspend fun handleGetMonuments(collector: FlowCollector<HomeResults>) {
+
+        collector.emit(HomeResults.GetMonuments(CommonViewState(isLoading = true)))
+
+        when (val result = getMonumentsUseCase()){
+
+            is DataState.Success -> {
+                collector.emit(HomeResults.GetMonuments(CommonViewState(data = result.data)))
+
+            }
+            is DataState.Error -> {
+                collector.emit(HomeResults.GetMonuments(CommonViewState(errorThrowable = result.throwable)))
+
+            }
+            else -> {}
+
+        }
     }
 
 

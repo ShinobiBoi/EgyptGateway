@@ -1,6 +1,5 @@
 package com.besha.egyptguide.features.main.presentaion.screen
 
-import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -23,6 +22,8 @@ import com.besha.egyptguide.features.leaderboard.presenation.screen.LeaderboardS
 import com.besha.egyptguide.features.main.presentaion.components.CustomBottomNavigationBar
 import com.besha.egyptguide.features.main.presentaion.viewmodel.BottomNavViewModel
 import com.besha.egyptguide.features.maps.presentaion.screen.MapsScreen
+import com.besha.egyptguide.features.monuments.presenation.screen.MonumentDetailsScreen
+import com.besha.egyptguide.features.monuments.presenation.screen.MonumentsScreen
 import com.besha.egyptguide.features.objectives.presentaion.screen.ObjectivesScreen
 import com.besha.egyptguide.features.placedetails.presentation.screen.PlaceDetailsScreen
 import com.besha.egyptguide.features.profile.presenation.screen.ProfileScreen
@@ -67,6 +68,8 @@ fun MainScreen(rootController: NavController,category: String?) {
                 currentRoute !is ScreenResources.SubmitTicketRoute &&
                 currentRoute !is ScreenResources.TicketDetailsRoute &&
                 currentRoute !is ScreenResources.ObjectivesRoute &&
+                currentRoute !is ScreenResources.MonumentsRoute &&
+                currentRoute !is ScreenResources.MonumentDetailsRoute &&
                 currentRoute !is ScreenResources.LeaderboardRoute
                 )
             CustomBottomNavigationBar(currentRoute) { selectedRoute ->
@@ -76,7 +79,6 @@ fun MainScreen(rootController: NavController,category: String?) {
                         launchSingleTop = true
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         restoreState = true
-
                     }
                 }
             }
@@ -103,13 +105,14 @@ fun MainScreen(rootController: NavController,category: String?) {
                             )
                         )
                     },
-                    onNavigateToQuiz = { monumentId, monumentName ->
-                        navController.navigate(
-                            ScreenResources.QuizRoute(
-                                id = monumentId,
-                                name = monumentName
-                            )
-                        )
+                    onNavigateToCamera = {
+                        navController.navigate(ScreenResources.CameraRoute) {
+                            launchSingleTop = true
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            restoreState = true
+                        }                    },
+                    onNavigateToMonuments = {
+                        navController.navigate(ScreenResources.MonumentsRoute)
                     }
                 )
             }
@@ -180,6 +183,21 @@ fun MainScreen(rootController: NavController,category: String?) {
 
             composable<ScreenResources.ObjectivesRoute> {
                 ObjectivesScreen(
+                    onBackClick = { navController.navigateUp() }
+                )
+            }
+
+            composable<ScreenResources.MonumentsRoute> {
+                MonumentsScreen(
+                    onBackClick = { navController.navigateUp() },
+                    onMonumentClick = { id -> navController.navigate(ScreenResources.MonumentDetailsRoute(id)) }
+                )
+            }
+
+            composable<ScreenResources.MonumentDetailsRoute> { backStackEntry ->
+                val details: ScreenResources.MonumentDetailsRoute = backStackEntry.toRoute()
+                MonumentDetailsScreen(
+                    monumentId = details.monumentId,
                     onBackClick = { navController.navigateUp() }
                 )
             }

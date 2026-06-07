@@ -50,6 +50,14 @@ sealed class ScreenResources {
     object ObjectivesRoute : ScreenResources()
 
     @Serializable
+    object MonumentsRoute : ScreenResources()
+
+    @Serializable
+    data class MonumentDetailsRoute(
+        val monumentId: String
+    ) : ScreenResources()
+
+    @Serializable
     data class TicketDetailsRoute(
         val ticketId: String
     ) : ScreenResources()
@@ -92,6 +100,8 @@ sealed class ScreenResources {
                 route.contains(TicketsRoute::class.qualifiedName ?: "") -> TicketsRoute
                 route.contains(SubmitTicketRoute::class.qualifiedName ?: "") -> SubmitTicketRoute
                 route.contains(ObjectivesRoute::class.qualifiedName ?: "") -> ObjectivesRoute
+                route.contains(MonumentsRoute::class.qualifiedName ?: "") -> MonumentsRoute
+                route.contains(MonumentDetailsRoute::class.qualifiedName ?: "") -> MonumentDetailsRoute("")
                 route.contains(TicketDetailsRoute::class.qualifiedName ?: "") -> TicketDetailsRoute("")
                 route.contains(LeaderboardRoute::class.qualifiedName ?: "") -> LeaderboardRoute("")
                 route.contains(PlaceDetailsRoute::class.qualifiedName ?: "") -> PlaceDetailsRoute()

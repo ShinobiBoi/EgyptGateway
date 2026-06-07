@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.data.model.MyPlace
+import com.besha.egyptguide.features.monuments.data.dto.MonumentDto
 import com.besha.egyptguide.ui.theme.Typography
 import kotlinx.coroutines.delay
 
@@ -38,10 +39,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun HomeBanner(
     modifier: Modifier = Modifier,
-    places: List<MyPlace>,
+    monuments: List<MonumentDto>,
     pagerState: PagerState,
     screenHeight: Dp = 200.dp,
-    onItemClick: () -> Unit
+    onClick: () -> Unit
 ) {
 
     // Auto-slide logic
@@ -49,8 +50,8 @@ fun HomeBanner(
         while (true) {
             val currentPage = pagerState.currentPage
             delay(5000)
-            if (places.isNotEmpty() && currentPage == pagerState.currentPage) {
-                val nextPage = (pagerState.currentPage + 1) % places.size
+            if (monuments.isNotEmpty() && currentPage == pagerState.currentPage) {
+                val nextPage = (pagerState.currentPage + 1) % monuments.size
                 pagerState.animateScrollToPage(nextPage)
             }
         }
@@ -60,24 +61,25 @@ fun HomeBanner(
     // ---- The pager with overlay text ----
     HorizontalPager(
         state = pagerState,
-        modifier = modifier
+        modifier = modifier.clickable(
+            onClick = {
+                onClick()
+            }
+        )
     ) { page ->
-        val place = places[page]
+        val place = monuments[page]
 
 
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(screenHeight * 0.5f)
-                .clickable(
-                    onClick = {}
-                )
+                .height(screenHeight * 0.52f)
         ) {
             // Movie image
             AsyncImage(
-                model = place.imageUri,
-                contentDescription = place.displayName,
+                model = place.images?.get(0) ?:"",
+                contentDescription = place.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -100,7 +102,7 @@ fun HomeBanner(
                     .padding(start = 16.dp, end = 16.dp, bottom = 100.dp)
             ) {
                 Text(
-                    text = place.displayName ?: "",
+                    text = place.name ?: "",
                     color = Color.White,
                     maxLines = 1,
                     overflow = TextOverflow.Clip,
@@ -123,15 +125,13 @@ fun HomeBanner(
                     )
 
                     Text(
-                        text = place.formattedAddress ?: "",
+                        text = place.city ?: "",
                         color = Color.LightGray,
                         maxLines = 1,
                         overflow = TextOverflow.Clip,
                         style = Typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         modifier = Modifier.basicMarquee()
                     )
-
-
                 }
             }
         }

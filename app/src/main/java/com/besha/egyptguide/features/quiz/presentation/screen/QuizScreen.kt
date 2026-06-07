@@ -22,7 +22,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.navigation.ScreenResources
-import com.besha.egyptguide.features.camera.data.model.VisitResponse
 import com.besha.egyptguide.features.quiz.data.model.QuizItem
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizRequest
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizResponse

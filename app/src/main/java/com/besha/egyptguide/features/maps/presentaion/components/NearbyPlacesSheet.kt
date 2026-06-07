@@ -2,17 +2,7 @@ package com.besha.egyptguide.features.maps.presentaion.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -20,20 +10,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.data.model.MyPlace
 
@@ -43,62 +33,76 @@ fun NearbyPlacesSheet(
     onPlaceClick: (MyPlace) -> Unit,
     onCloseClick: () -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(screenHeight / 2)
-            .background(Color.White)
-            .padding(bottom = 16.dp)
+            .height(screenHeight * 0.55f)
+            .background(colorResource(R.color.surface_white))
     ) {
-        // Handle Bar
+        // Drag handle
         Box(
             modifier = Modifier
-                .padding(vertical = 12.dp)
-                .width(40.dp)
-                .height(4.dp)
-                .background(Color.LightGray, RoundedCornerShape(2.dp))
                 .align(Alignment.CenterHorizontally)
+                .padding(top = 12.dp, bottom = 4.dp)
+                .width(36.dp)
+                .height(4.dp)
+                .clip(CircleShape)
+                .background(colorResource(R.color.text_secondary).copy(alpha = 0.2f))
         )
 
+        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp),
+                .padding(horizontal = 20.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = stringResource(R.string.nearby_places),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
+            Column {
+                Text(
+                    text = stringResource(R.string.nearby_places),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = colorResource(R.color.text_primary),
+                    letterSpacing = (-0.3).sp
+                )
+                Text(
+                    text = "${places.size} results found",
+                    fontSize = 12.sp,
+                    color = colorResource(R.color.text_secondary),
+                    fontWeight = FontWeight.Medium
+                )
+            }
 
-            Surface(
+            Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(36.dp)
                     .clip(CircleShape)
+                    .background(colorResource(R.color.stroke_gray))
                     .clickable { onCloseClick() },
-                color = Color(0xFFF5F5F5)
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Close",
-                    modifier = Modifier.padding(6.dp),
-                    tint = Color.Gray
+                    tint = colorResource(R.color.text_secondary),
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = colorResource(R.color.divider_color),
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
 
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(places) { place ->
                 NearbyPlaceItem(place = place, onClick = { onPlaceClick(place) })
@@ -109,51 +113,62 @@ fun NearbyPlacesSheet(
 
 @Composable
 fun NearbyPlaceItem(place: MyPlace, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .background(Color.White)
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = colorResource(R.color.surface_white),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, colorResource(R.color.divider_color)
+        ),
+        shadowElevation = 0.dp
     ) {
-        Surface(
-            modifier = Modifier.size(48.dp),
-            shape = RoundedCornerShape(12.dp),
-            color = Color(0xFFFCE4EC)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.LocationOn,
-                contentDescription = null,
-                modifier = Modifier.padding(12.dp),
-                tint = Color(0xFFE91E63)
-            )
-        }
+            // Icon box with gradient
+            Box(
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(13.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(
+                                colorResource(R.color.blue).copy(alpha = 0.12f),
+                                colorResource(R.color.blue).copy(alpha = 0.06f)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = colorResource(R.color.blue),
+                    modifier = Modifier.size(22.dp)
+                )
+            }
 
-        Spacer(modifier = Modifier.width(16.dp))
+            Spacer(Modifier.width(14.dp))
 
-        Column(modifier = Modifier.weight(1.0f)) {
-            Text(
-                text = place.displayName ?: "",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black,
-                maxLines = 1
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = place.formattedAddress ?: "",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
-                maxLines = 1
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = place.displayName ?: "",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = colorResource(R.color.text_primary),
+                    maxLines = 1
+                )
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    text = place.formattedAddress ?: "",
+                    fontSize = 12.sp,
+                    color = colorResource(R.color.text_secondary),
+                    maxLines = 1
+                )
+            }
         }
-        
-        Icon(
-            painter = painterResource(R.drawable.location_ic),
-            contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = Color.LightGray
-        )
     }
 }

@@ -2,15 +2,18 @@ package com.besha.egyptguide.appcore.data.remote
 
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpRequest
 import com.besha.egyptguide.auth.screens.signup.data.model.SignUpResponse
-import com.besha.egyptguide.features.camera.data.model.RatingRequest
-import com.besha.egyptguide.features.camera.data.model.RatingResponse
+import com.besha.egyptguide.features.camera.data.dto.RatingRequest
+import com.besha.egyptguide.features.camera.data.dto.RatingResponse
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardList
 import com.besha.egyptguide.features.leaderboard.data.model.LeaderboardListItem
 import com.besha.egyptguide.features.profile.data.dto.UserProfile
 import com.besha.egyptguide.features.quiz.data.model.Quiz
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizResponse
-import com.besha.egyptguide.features.camera.data.model.VisitRequest
-import com.besha.egyptguide.features.camera.data.model.VisitResponse
+import com.besha.egyptguide.features.camera.data.dto.VisitRequest
+import com.besha.egyptguide.features.camera.data.dto.VisitResponse
+import com.besha.egyptguide.features.monuments.data.dto.MonumentDto
+import com.besha.egyptguide.features.monuments.data.dto.RatingDto
+import com.besha.egyptguide.features.monuments.data.dto.RatingSummaryDto
 import com.besha.egyptguide.features.objectives.data.dto.MonumentObjectivesResponse
 import com.besha.egyptguide.features.objectives.data.dto.TicketObjectivesResponse
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizRequest
@@ -96,12 +99,33 @@ interface BackEndServices {
 
 
     //monument///////////////////////////////////////////////////
-
     @Multipart
     @POST("monuments/identify")
     suspend fun identifyMonument(
         @Part file: MultipartBody.Part
     ): Response<IdentifyResponse>
+
+
+
+    @GET("monuments/")
+    suspend fun getMonument(): Response<List<MonumentDto>>
+
+    @GET("monuments/{monument_id}")
+    suspend fun getMonumentById(
+        @Path("monument_id") monumentId: String,
+    ): Response<MonumentDto>
+
+    @GET("monuments/{monument_id}/ratings")
+    suspend fun monumentRating(
+        @Path("monument_id") monumentId: String,
+        @Query("limit") limit: Int,
+    ): Response<List<RatingDto>>
+
+
+    @GET("monuments/{monument_id}/ratings/summary")
+    suspend fun monumentRatingSummary(
+        @Path("monument_id") monumentId: String
+    ): Response<RatingSummaryDto>
 
 
 

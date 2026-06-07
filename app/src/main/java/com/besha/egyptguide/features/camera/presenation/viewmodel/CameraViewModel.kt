@@ -7,7 +7,7 @@ import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
 import com.besha.egyptguide.features.camera.domain.usecase.IdentifyPhotoUseCase
 import com.besha.egyptguide.features.camera.domain.usecase.RateUseCase
 import com.besha.egyptguide.features.camera.domain.usecase.VisitUseCase
-import com.besha.egyptguide.features.camera.data.model.VisitRequest
+import com.besha.egyptguide.features.camera.data.dto.VisitRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

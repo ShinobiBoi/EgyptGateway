@@ -2,7 +2,6 @@ package com.besha.egyptguide.features.tickets.presentation.viewmodel
 
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.ViewState
-import com.besha.egyptguide.features.tickets.data.dto.TicketDetailsResponse
 import com.besha.egyptguide.features.tickets.domain.models.Ticket
 import com.besha.egyptguide.features.tickets.data.dto.SubmitTicketResponse
 import com.google.android.libraries.places.api.model.AutocompletePrediction
