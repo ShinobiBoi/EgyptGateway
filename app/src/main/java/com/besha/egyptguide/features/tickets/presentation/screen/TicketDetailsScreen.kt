@@ -163,7 +163,7 @@ fun TicketDetailsContent(ticket: TicketDetails) {
                     .height(220.dp)
                     .fillMaxWidth()) {
                     AsyncImage(
-                        model = if (ticket.imageUrl?.startsWith("/") == true) "http://10.0.2.2:8000${ticket.imageUrl}" else ticket.imageUrl,
+                        model = if (ticket.imageUrl?.startsWith("/") == true) "http://127.0.0.1:8000${ticket.imageUrl}" else ticket.imageUrl,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop

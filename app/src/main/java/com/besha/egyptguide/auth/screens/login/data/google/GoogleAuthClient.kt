@@ -81,22 +81,27 @@ class GoogleAuthClient  @Inject constructor(
             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
         ) {
 
-            val googleIdTokenCredential =
-                GoogleIdTokenCredential.createFrom(credential.data)
+            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
             val googleIdToken = googleIdTokenCredential.idToken
 
+            val email = googleIdTokenCredential.id  // ← This is the email, always populated
 
-            val firebaseCredential =
-                GoogleAuthProvider.getCredential(googleIdToken, null)
+            val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
 
             val user = auth.signInWithCredential(firebaseCredential)
                 .await()
                 .user ?: throw IllegalStateException("Sign in failed")
+            // Get Firebase ID token and attach it to the request
+            val idToken = user.getIdToken(true).await().token
+                ?: throw IllegalStateException("Failed to get ID token")
 
-            val result = backEndServices.signUp(SignUpRequest(
+            Log.d("Token", "Firebase ID Token: $idToken")
+
+            val result = backEndServices.signUp( token = "Bearer $idToken",
+                SignUpRequest(
                 name = user.displayName ?: "",
-                email = user.email ?: "",
+                email = email,
                 photo_url = user.photoUrl?.toString() ?: "",
                 language = "en"
             ))
@@ -127,7 +132,13 @@ class GoogleAuthClient  @Inject constructor(
             val user = auth.currentUser ?: throw IllegalStateException("User creation failed")
             user.sendEmailVerification().await()
 
-            val result = backEndServices.signUp(SignUpRequest(
+            // Get Firebase ID token and attach it to the request
+            val idToken = user.getIdToken(true).await().token
+                ?: throw IllegalStateException("Failed to get ID token")
+
+
+            val result = backEndServices.signUp( token = "Bearer $idToken",
+                SignUpRequest(
                 name = signUpForm.name,
                 email = signUpForm.email,
                 photo_url = user.photoUrl?.toString() ?: "",

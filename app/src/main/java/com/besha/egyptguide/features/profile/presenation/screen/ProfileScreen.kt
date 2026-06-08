@@ -65,6 +65,7 @@ fun ProfileScreen(rootController: NavController, childController: NavController)
 
     LaunchedEffect(Unit) {
         profileViewModel.executeAction(ProfileActions.GetProfile)
+        profileViewModel.executeAction(ProfileActions.GetNotificationStatus(context))
     }
 
     var showNameDialog by remember { mutableStateOf(false) }
@@ -240,7 +241,7 @@ fun ProfileScreen(rootController: NavController, childController: NavController)
                                             modifier = Modifier
                                                 .clip(CircleShape)
                                                 .size(54.dp),
-                                            model = "http://10.0.2.2:8000$profilePic".toUri(),
+                                            model = "http://127.0.0.1:8000$profilePic".toUri(),
                                             contentDescription = "profile pic",
                                             contentScale = ContentScale.Crop,
                                         )

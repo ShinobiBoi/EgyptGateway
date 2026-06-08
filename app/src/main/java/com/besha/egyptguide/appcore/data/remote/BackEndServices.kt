@@ -25,6 +25,7 @@ import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -40,6 +41,7 @@ interface BackEndServices {
 
     @POST("auth/signup")
     suspend fun signUp(
+        @Header("Authorization") token: String,
         @Body signUpRequest: SignUpRequest
     ): Response<SignUpResponse>
 

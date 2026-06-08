@@ -60,7 +60,9 @@ fun HomeScreen(
 
     LaunchedEffect(state.location) {
         state.location.data?.let {
-            if (state.places.data == null) { /* future use */ }
+            if (state.places.data == null) {
+                viewModel.executeAction(HomeActions.SelectGenre(state.selectedGenre, it))
+            }
         }
     }
 

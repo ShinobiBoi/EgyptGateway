@@ -46,7 +46,11 @@ fun MainScreen(rootController: NavController,category: String?) {
 
     LaunchedEffect(category) {
         if (category != null) {
-            navController.navigate(ScreenResources.MapsRoute)
+            navController.navigate(ScreenResources.MapsRoute) {
+                launchSingleTop = true
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                restoreState = true
+            }
         }
 
     }

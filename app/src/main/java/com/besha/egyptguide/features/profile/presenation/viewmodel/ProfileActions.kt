@@ -7,6 +7,8 @@ sealed class ProfileActions : Action {
     object GetProfile : ProfileActions()
 
     data class UpdateProfile(val updateProfileRequest: UpdateProfileRequest) : ProfileActions()
+
+    data class GetNotificationStatus (val context: android.content.Context): ProfileActions()
     data class ToggleNotification(val notification: Boolean) : ProfileActions()
     data class ScheduleFoodAlarms(val category: String, val time: java.time.LocalTime) : ProfileActions()
     object LogOut : ProfileActions()

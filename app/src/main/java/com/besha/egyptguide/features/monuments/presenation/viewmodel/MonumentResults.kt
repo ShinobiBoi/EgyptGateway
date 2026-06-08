@@ -5,6 +5,7 @@ import com.besha.egyptguide.appcore.mvi.Result
 import com.besha.egyptguide.features.monuments.data.dto.MonumentDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingSummaryDto
+import com.besha.egyptguide.features.monuments.domain.model.Rating
 
 sealed class MonumentResults : Result<MonumentViewState> {
     data class MonumentsResult(val result: CommonViewState<List<MonumentDto>>) : MonumentResults() {
@@ -19,7 +20,7 @@ sealed class MonumentResults : Result<MonumentViewState> {
         }
     }
 
-    data class RatingsResult(val result: CommonViewState<List<RatingDto>>) : MonumentResults() {
+    data class RatingsResult(val result: CommonViewState<List<Rating>>) : MonumentResults() {
         override fun reduce(defaultState: MonumentViewState, oldState: MonumentViewState): MonumentViewState {
             return oldState.copy(ratings = result)
         }

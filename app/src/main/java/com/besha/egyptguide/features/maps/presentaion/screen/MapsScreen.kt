@@ -96,7 +96,7 @@ fun MapsScreen(
             scaffoldState.bottomSheetState.expand()
             state.currentLocation.data?.let { latLng ->
                 cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(LatLng(latLng.latitude - 0.01, latLng.longitude), 12f), 800
+                    CameraUpdateFactory.newLatLngZoom(LatLng(latLng.latitude - 0.02, latLng.longitude), 12f), 800
                 )
             }
         }
@@ -109,7 +109,7 @@ fun MapsScreen(
     LaunchedEffect(state.selectedPlace.data) {
         state.selectedPlace.data?.location?.let { latLng ->
             scaffoldState.bottomSheetState.expand()
-            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, 16f), 800)
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(latLng.latitude-0.001, latLng.longitude), 16f), 800)
         }
         isSearchFocused = false
         if (state.selectedPlace.data == null && state.nearByPlaces.data.isNullOrEmpty() && scaffoldState.bottomSheetState.isVisible) {

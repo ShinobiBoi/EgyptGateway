@@ -217,7 +217,7 @@ fun PodiumItem(
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .size(40.dp),
-                            model = "http://10.0.2.2:8000${user.photo_url}".toUri(),
+                            model = "http://127.0.0.1:8000/${user.photo_url}".toUri(),
                             contentDescription = "profile pic",
                             contentScale = ContentScale.Crop,
                         )
@@ -313,7 +313,7 @@ fun LeaderboardRow(user: LeaderboardListItem, rank: Int, isCurrentUser: Boolean)
                     modifier = Modifier
                         .clip(CircleShape)
                         .size(40.dp),
-                    model = "http://10.0.2.2:8000${user.photo_url}".toUri(),
+                    model = "http://127.0.0.1:8000/${user.photo_url}".toUri(),
                     contentDescription = "profile pic",
                     contentScale = ContentScale.Crop,
                 )

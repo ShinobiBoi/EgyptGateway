@@ -6,6 +6,8 @@ import com.besha.egyptguide.appcore.data.remote.BackEndServices
 import com.besha.egyptguide.features.monuments.data.dto.MonumentDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingSummaryDto
+import com.besha.egyptguide.features.monuments.data.mapper.toDomain
+import com.besha.egyptguide.features.monuments.domain.model.Rating
 import com.besha.egyptguide.features.monuments.domain.remote.MonumentRemoteClient
 import javax.inject.Inject
 
@@ -38,11 +40,11 @@ class MonumentRemoteClientImp @Inject constructor(
         }
     }
 
-    override suspend fun getMonumentRatings(monumentId: String, limit: Int): DataState<List<RatingDto>> {
+    override suspend fun getMonumentRatings(monumentId: String, limit: Int): DataState<List<Rating>> {
         return try {
             val response = backEndServices.monumentRating(monumentId, limit)
             if (response.isSuccessful && response.body() != null) {
-                DataState.Success(response.body()!!)
+                DataState.Success(response.body()!!.map { it.toDomain() })
             } else {
                 DataState.Error(Throwable(response.message()))
             }

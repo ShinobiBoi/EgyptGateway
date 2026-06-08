@@ -5,6 +5,7 @@ import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.features.monuments.data.dto.MonumentDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingSummaryDto
+import com.besha.egyptguide.features.monuments.domain.model.Rating
 import com.besha.egyptguide.features.monuments.domain.remote.MonumentRemoteClient
 import com.besha.egyptguide.features.monuments.domain.repo.MonumentRepo
 import javax.inject.Inject
@@ -20,7 +21,7 @@ class MonumentRepoImp @Inject constructor(
         return remoteClient.getMonumentById(monumentId)
     }
 
-    override suspend fun getMonumentRatings(monumentId: String, limit: Int): DataState<List<RatingDto>> {
+    override suspend fun getMonumentRatings(monumentId: String, limit: Int): DataState<List<Rating>> {
         return remoteClient.getMonumentRatings(monumentId, limit)
     }
 

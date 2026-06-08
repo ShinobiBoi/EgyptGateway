@@ -27,13 +27,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.besha.egyptguide.R
 import com.besha.egyptguide.features.monuments.data.dto.RatingDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingSummaryDto
+import com.besha.egyptguide.features.monuments.domain.model.Rating
 import com.besha.egyptguide.features.monuments.presenation.viewmodel.MonumentActions
 import com.besha.egyptguide.features.monuments.presenation.viewmodel.MonumentViewModel
+import com.besha.egyptguide.features.tickets.data.mapper.toFormattedDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +46,7 @@ fun MonumentDetailsScreen(
 ) {
     val viewModel: MonumentViewModel = hiltViewModel()
     val state by viewModel.viewStates.collectAsState()
-    var ratingsLimit by remember { mutableIntStateOf(5) }
+    var ratingsLimit by remember { mutableIntStateOf(3) }
 
     LaunchedEffect(monumentId) {
         viewModel.executeAction(MonumentActions.GetMonumentDetails(monumentId))
@@ -290,7 +293,7 @@ fun MonumentDetailsScreen(
                             Spacer(Modifier.height(8.dp))
                             OutlinedButton(
                                 onClick = {
-                                    ratingsLimit += 5
+                                    ratingsLimit += 3
                                     viewModel.executeAction(
                                         MonumentActions.GetMoreRatings(monumentId, ratingsLimit)
                                     )
@@ -459,7 +462,7 @@ fun ModernRatingSummaryCard(summary: RatingSummaryDto) {
 }
 
 @Composable
-fun ModernReviewCard(rating: RatingDto) {
+fun ModernReviewCard(rating: Rating) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -475,28 +478,59 @@ fun ModernReviewCard(rating: RatingDto) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // Avatar circle with initials-style icon
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.linearGradient(
-                                    listOf(colorResource(R.color.blue_light), colorResource(R.color.blue))
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "E",
-                            color = Color.White,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 16.sp
-                        )
+
+                    val profilePic = rating.user_photo_url
+                    Log.d("profilePic", profilePic.toString())
+
+                    if (!profilePic.isNullOrEmpty()) {
+
+
+                        if (profilePic.startsWith("http"))
+                            AsyncImage(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(54.dp),
+                                model = profilePic.toUri(),
+                                contentDescription = "profile pic",
+                                contentScale = ContentScale.Crop,
+                            )
+                        else
+                            AsyncImage(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(54.dp),
+                                model = "http://127.0.0.1:8000$profilePic".toUri(),
+                                contentDescription = "profile pic",
+                                contentScale = ContentScale.Crop,
+                            )
+                    }
+                    else {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    Brush.linearGradient(
+                                        listOf(
+                                            colorResource(R.color.blue_light),
+                                            colorResource(R.color.blue)
+                                        )
+                                    )
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "${rating.user_name?.take(1)?.uppercase()}",
+                                color = Color.White,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 16.sp
+                            )
+                        }
                     }
                     Spacer(Modifier.width(12.dp))
                     Column {
-                        Text("Explorer", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = colorResource(R.color.text_primary))
-                        Text(rating.date ?: "", fontSize = 11.sp, color = colorResource(R.color.text_secondary))
+                        Text(rating.user_name?: "Explorer", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = colorResource(R.color.text_primary))
+                        Text(rating.formattedDate ?: "", fontSize = 11.sp, color = colorResource(R.color.text_secondary))
                     }
                 }
 

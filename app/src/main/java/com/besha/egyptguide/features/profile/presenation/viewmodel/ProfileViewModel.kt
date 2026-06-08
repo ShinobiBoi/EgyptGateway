@@ -1,5 +1,10 @@
 package com.besha.egyptguide.features.profile.presenation.viewmodel
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
@@ -43,6 +48,19 @@ class ProfileViewModel @Inject constructor(
 
             is ProfileActions.LogOut -> {
               logOutUseCase()
+            }
+
+            is ProfileActions.GetNotificationStatus->{
+                val result =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    ContextCompat.checkSelfPermission(
+                        action.context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                } else {
+                    NotificationManagerCompat.from(action.context).areNotificationsEnabled()
+                }
+                emit(ProfileResults.NotificationResult(result))
             }
 
             is ProfileActions.ToggleNotification -> {

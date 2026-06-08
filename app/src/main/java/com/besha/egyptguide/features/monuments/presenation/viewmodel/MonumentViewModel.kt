@@ -43,7 +43,6 @@ class MonumentViewModel @Inject constructor(
                 // Fetch monument details, rating summary, and initial ratings
                 emit(MonumentResults.MonumentDetailsResult(CommonViewState(isLoading = true)))
 
-                Log.d("MonumentViewModel", "Fetching monument details for ID: ${action.monumentId}")
                 // Fetch Monument Info
                 when (val result = getMonumentByIdUseCase(action.monumentId)) {
                     is DataState.Success -> {
@@ -61,12 +60,11 @@ class MonumentViewModel @Inject constructor(
                         emit(MonumentResults.RatingSummaryResult(CommonViewState(data = summaryResult.data)))
                     }
                     else -> {
-                        Log.e("MonumentViewModel", "Failed to fetch rating summary")
                     }
                 }
 
                 // Fetch initial 5 ratings
-                fetchRatings(action.monumentId, 5, this)
+                fetchRatings(action.monumentId, 3, this)
             }
 
             is MonumentActions.GetMoreRatings -> {

@@ -30,6 +30,7 @@ fun NotificationPermissionToggle(
         title = "Notifications",
         description = "Enable to set food reminders and receive updates.",
         checked = isEnabled,
+
         onToggle = { checked ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val granted = ContextCompat.checkSelfPermission(
