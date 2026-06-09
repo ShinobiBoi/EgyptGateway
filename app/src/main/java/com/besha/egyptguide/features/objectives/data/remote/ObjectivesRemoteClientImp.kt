@@ -2,15 +2,15 @@ package com.besha.egyptguide.features.objectives.data.remote
 
 import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.data.remote.BackEndServices
-import com.besha.egyptguide.features.objectives.data.dto.MonumentObjectivesResponse
-import com.besha.egyptguide.features.objectives.data.dto.TicketObjectivesResponse
+import com.besha.egyptguide.features.objectives.data.dto.MonumentObjectivesDto
+import com.besha.egyptguide.features.objectives.data.dto.TicketObjectivesDto
 import com.besha.egyptguide.features.objectives.domain.remote.ObjectivesRemoteClient
 import javax.inject.Inject
 
 class ObjectivesRemoteClientImp @Inject constructor(
     private val backEndServices: BackEndServices
 ) : ObjectivesRemoteClient {
-    override suspend fun getMonumentObjectives(): DataState<MonumentObjectivesResponse> {
+    override suspend fun getMonumentObjectives(): DataState<List<MonumentObjectivesDto>> {
         return try {
             val response = backEndServices.monumentObjectives()
             if (response.isSuccessful && response.body() != null) {
@@ -23,7 +23,7 @@ class ObjectivesRemoteClientImp @Inject constructor(
         }
     }
 
-    override suspend fun getTicketObjectives(): DataState<TicketObjectivesResponse> {
+    override suspend fun getTicketObjectives(): DataState<List<TicketObjectivesDto>> {
         return try {
             val response = backEndServices.ticketObjectives()
             if (response.isSuccessful && response.body() != null) {

@@ -19,18 +19,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.besha.egyptguide.R
-import com.besha.egyptguide.appcore.data.model.MyPlace
+import com.besha.egyptguide.features.maps.domain.model.MapsPlace
+import java.util.Locale
 
 @Composable
 fun NearbyPlacesSheet(
-    places: List<MyPlace>,
-    onPlaceClick: (MyPlace) -> Unit,
+    places: List<MapsPlace>,
+    onPlaceClick: (MapsPlace) -> Unit,
     onCloseClick: () -> Unit
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
@@ -112,7 +112,7 @@ fun NearbyPlacesSheet(
 }
 
 @Composable
-fun NearbyPlaceItem(place: MyPlace, onClick: () -> Unit) {
+fun NearbyPlaceItem(place: MapsPlace, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
@@ -168,7 +168,54 @@ fun NearbyPlaceItem(place: MyPlace, onClick: () -> Unit) {
                     color = colorResource(R.color.text_secondary),
                     maxLines = 1
                 )
+
+                if (place.distanceMeters != null || place.duration != null) {
+                    Spacer(Modifier.height(6.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (place.duration != null) {
+                            Text(
+                                text = formatDuration(place.duration),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = colorResource(R.color.blue)
+                            )
+                        }
+                        if (place.duration != null && place.distanceMeters != null) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 6.dp)
+                                    .size(3.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Gray)
+                            )
+                        }
+                        if (place.distanceMeters != null) {
+                            Text(
+                                text = formatDistance(place.distanceMeters),
+                                fontSize = 11.sp,
+                                color = colorResource(R.color.text_secondary)
+                            )
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+private fun formatDistance(meters: Int?): String {
+    if (meters == null) return ""
+    return if (meters < 1000) "${meters}m" else String.format(Locale.getDefault(), "%.1fkm", meters / 1000.0)
+}
+
+private fun formatDuration(durationStr: String?): String {
+    if (durationStr == null) return ""
+    val seconds = durationStr.removeSuffix("s").toDoubleOrNull()?.toInt() ?: return durationStr
+    val hours = seconds / 3600
+    val minutes = (seconds % 3600) / 60
+    return when {
+        hours > 0 -> "${hours}h ${minutes}m"
+        minutes > 0 -> "${minutes}m"
+        else -> "${seconds}s"
     }
 }

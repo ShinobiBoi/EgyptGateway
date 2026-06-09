@@ -1,6 +1,13 @@
 package com.besha.egyptguide.features.maps.data.remote
 
+import android.util.Log
+import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.data.model.MyPlace
+import com.besha.egyptguide.appcore.data.remote.BackEndServices
+import com.besha.egyptguide.features.maps.data.dto.MatrixDto
+import com.besha.egyptguide.features.maps.data.dto.RoutesDto
+import com.besha.egyptguide.features.maps.data.dto.request.MatrixRequestDto
+import com.besha.egyptguide.features.maps.data.dto.request.RoutesRequestDto
 import com.besha.egyptguide.features.maps.domain.remote.MapsRemoteClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompletePrediction
@@ -20,8 +27,10 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 
-class MapsRemoteClientImp @Inject constructor(private val placesClient: PlacesClient) :
-    MapsRemoteClient {
+class MapsRemoteClientImp @Inject constructor(
+    private val placesClient: PlacesClient,
+    private val backEndServices: BackEndServices
+) : MapsRemoteClient {
 
 
     override suspend fun onQueryChange(
@@ -136,6 +145,24 @@ class MapsRemoteClientImp @Inject constructor(private val placesClient: PlacesCl
         }
     }
 
+    override suspend fun getMapsRoutes(request: RoutesRequestDto): DataState<RoutesDto> {
+        val response = backEndServices.mapsRoutes(request)
+
+        if (response.isSuccessful) {
+            return DataState.Success(response.body()!!)
+        }
+        return DataState.Error(Throwable(message = response.message()))
+
+    }
+
+    override suspend fun getMapsMatrix(request: MatrixRequestDto): DataState<List<MatrixDto>> {
+        val response = backEndServices.mapsMatrix(request)
+
+        if (response.isSuccessful) {
+            return DataState.Success(response.body()!!)
+        }
+        return DataState.Error(Throwable(message = response.message()))
+    }
 
 
     private suspend fun mapPlaceToMyPlace(
@@ -148,6 +175,7 @@ class MapsRemoteClientImp @Inject constructor(private val placesClient: PlacesCl
                 ?.firstOrNull()
                 ?.let { metadata ->
                     try {
+
                     val resolvedResponse = placesClient
                         .fetchResolvedPhotoUri(
                             FetchResolvedPhotoUriRequest.builder(metadata).build()

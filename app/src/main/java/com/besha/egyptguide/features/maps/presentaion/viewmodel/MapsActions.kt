@@ -1,6 +1,8 @@
 package com.besha.egyptguide.features.maps.presentaion.viewmodel
 
 import com.besha.egyptguide.appcore.mvi.Action
+import com.besha.egyptguide.features.maps.data.dto.request.MyLatLng
+import com.besha.egyptguide.features.maps.data.dto.request.TravelMode
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 
@@ -23,6 +25,12 @@ sealed class MapsActions() : Action {
 
     object GetCurrentLocation : MapsActions()
     object CurrentLocationLoaded : MapsActions()
+
+    data class GetMapsRoutes(
+        val destination: MyLatLng,
+        val origin: MyLatLng,
+        val travelMode: TravelMode = TravelMode.DRIVE
+    ) : MapsActions()
 
 
 }

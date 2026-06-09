@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -39,14 +40,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.besha.egyptguide.R
 import com.besha.egyptguide.appcore.navigation.ScreenResources
 import com.besha.egyptguide.features.home.data.constants.GenreType
+import com.besha.egyptguide.features.maps.data.dto.request.MyLatLng
 import com.besha.egyptguide.features.maps.presentaion.components.NearbyPlacesSheet
 import com.besha.egyptguide.features.maps.presentaion.components.SelectedPlacesSheet
+import com.besha.egyptguide.features.maps.presentaion.utils.PolylineDecoder
 import com.besha.egyptguide.features.maps.presentaion.viewmodel.MapsActions
 import com.besha.egyptguide.features.maps.presentaion.viewmodel.MapsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,6 +112,14 @@ fun MapsScreen(
 
     LaunchedEffect(state.selectedPlace.data) {
         state.selectedPlace.data?.location?.let { latLng ->
+            val origin = state.currentLocation.data
+            if (origin != null) {
+                viewModel.executeAction(MapsActions.GetMapsRoutes(destination = MyLatLng(
+                    latitude = latLng.latitude,
+                    longitude = latLng.longitude
+                ), origin = MyLatLng(latitude = origin.latitude, longitude =  origin.longitude)))
+            }
+            
             scaffoldState.bottomSheetState.expand()
             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(latLng.latitude-0.001, latLng.longitude), 16f), 800)
         }
@@ -167,7 +179,7 @@ fun MapsScreen(
                 uiSettings = MapUiSettings(myLocationButtonEnabled = false, zoomControlsEnabled = false)
             ) {
 
-
+                if (state.selectedPlace.data==null)
                 // Nearby markers — pink accent
                 state.nearByPlaces.data?.forEach { place ->
                     place.location?.let { latLng ->
@@ -185,6 +197,44 @@ fun MapsScreen(
                                 isSelected = false
                             )
                         }
+                    }
+                }
+
+                // Selected place marker
+                state.selectedPlace.data?.location?.let { latLng ->
+                    val firstRoute = state.routes.data?.routes?.firstOrNull()
+                    MarkerComposable(
+                        state = MarkerState(position = latLng),
+                        title = state.selectedPlace.data?.displayName ?: "",
+                        snippet = state.selectedPlace.data?.formattedAddress ?: "",
+                        
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (firstRoute != null) {
+                                RouteInfoLabel(
+                                    duration = formatDuration(firstRoute.duration),
+                                    distance = formatDistance(firstRoute.distanceMeters)
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                            }
+                            ModernMarker(
+                                color = colorResource(R.color.blue),
+                                isSelected = true
+                            )
+                        }
+                    }
+                }
+
+                // Show Route Polyline
+                if (state.selectedPlace.data != null)
+                state.routes.data?.routes?.forEach { route ->
+                    route.polyline?.encodedPolyline?.let { encoded ->
+                        val points = PolylineDecoder.decode(encoded)
+                        Polyline(
+                            points = points,
+                            color = colorResource(R.color.blue),
+                            width = 12f
+                        )
                     }
                 }
             }
@@ -420,6 +470,53 @@ fun MapsScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun RouteInfoLabel(duration: String, distance: String) {
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = Color.White,
+        shadowElevation = 6.dp,
+        border = BorderStroke(1.5.dp, colorResource(R.color.blue))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = duration,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = colorResource(R.color.blue)
+            )
+            Box(modifier = Modifier.size(4.dp).clip(CircleShape).background(Color.Gray))
+            Text(
+                text = distance,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = colorResource(R.color.text_secondary)
+            )
+        }
+    }
+}
+
+fun formatDistance(meters: Int?): String {
+    if (meters == null) return ""
+    return if (meters < 1000) "${meters}m" else String.format(Locale.getDefault(), "%.1fkm", meters / 1000.0)
+}
+
+fun formatDuration(durationStr: String?): String {
+    if (durationStr == null) return ""
+    val seconds = durationStr.removeSuffix("s").toDoubleOrNull()?.toInt() ?: return durationStr
+    val hours = seconds / 3600
+    val minutes = (seconds % 3600) / 60
+    return when {
+        hours > 0 -> "${hours}h ${minutes}m"
+        minutes > 0 -> "${minutes}m"
+        else -> "${seconds}s"
     }
 }
 

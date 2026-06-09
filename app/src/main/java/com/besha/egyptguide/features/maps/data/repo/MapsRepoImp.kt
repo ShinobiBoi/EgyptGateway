@@ -4,7 +4,12 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.data.model.MyPlace
+import com.besha.egyptguide.features.maps.data.dto.MatrixDto
+import com.besha.egyptguide.features.maps.data.dto.RoutesDto
+import com.besha.egyptguide.features.maps.data.dto.request.MatrixRequestDto
+import com.besha.egyptguide.features.maps.data.dto.request.RoutesRequestDto
 import com.besha.egyptguide.features.maps.domain.remote.MapsRemoteClient
 import com.besha.egyptguide.features.maps.domain.repo.MapsRepo
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -99,6 +104,14 @@ class MapsRepoImp @Inject constructor (private val mapsRemoteClient: MapsRemoteC
         awaitClose {
             fusedLocationClient.removeLocationUpdates(locationCallback)
         }
+    }
+
+    override suspend fun getMapsRoutes(request: RoutesRequestDto): DataState<RoutesDto> {
+        return mapsRemoteClient.getMapsRoutes(request)
+    }
+
+    override suspend fun getMapsMatrix(request: MatrixRequestDto): DataState<List<MatrixDto>> {
+        return mapsRemoteClient.getMapsMatrix(request)
     }
 
 

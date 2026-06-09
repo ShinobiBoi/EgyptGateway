@@ -2,9 +2,22 @@ package com.besha.egyptguide.features.maps.presentaion.viewmodel
 
 
 import android.util.Log
+import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.MVIBaseViewModel
+import com.besha.egyptguide.features.maps.data.dto.request.Destination
+import com.besha.egyptguide.features.maps.data.dto.request.DestinationX
+import com.besha.egyptguide.features.maps.data.dto.request.Location
+import com.besha.egyptguide.features.maps.data.dto.request.MatrixRequestDto
+import com.besha.egyptguide.features.maps.data.dto.request.MyLatLng
+import com.besha.egyptguide.features.maps.data.dto.request.Origin
+import com.besha.egyptguide.features.maps.data.dto.request.OriginX
+import com.besha.egyptguide.features.maps.data.dto.request.RoutesRequestDto
+import com.besha.egyptguide.features.maps.data.dto.request.Waypoint
+import com.besha.egyptguide.features.maps.domain.model.MapsPlace
 import com.besha.egyptguide.features.maps.domain.usecases.CurrentLocationUseCase
+import com.besha.egyptguide.features.maps.domain.usecases.GetMapsMatrixUseCase
+import com.besha.egyptguide.features.maps.domain.usecases.GetMapsRoutesUseCase
 import com.besha.egyptguide.features.maps.domain.usecases.MapsNearBySearchUseCase
 import com.besha.egyptguide.features.maps.domain.usecases.QueryChangeUseCase
 import com.besha.egyptguide.features.maps.domain.usecases.SetPlaceUseCase
@@ -24,7 +37,9 @@ class MapsViewModel @Inject constructor(
     private val setPlaceUseCase: SetPlaceUseCase,
     private val getCurrentLocationUseCase: CurrentLocationUseCase,
     private val textSearchByUseCase: TextSearchByUseCase,
-    private val mapsNearBySearchUseCase: MapsNearBySearchUseCase
+    private val mapsNearBySearchUseCase: MapsNearBySearchUseCase,
+    private val getMapsRoutesUseCase: GetMapsRoutesUseCase,
+    private val getMapsMatrixUseCase: GetMapsMatrixUseCase
 ) : MVIBaseViewModel<MapsActions, MapsResults, MapsViewState>() {
 
 
@@ -88,8 +103,58 @@ class MapsViewModel @Inject constructor(
                 )
             }
 
+            is MapsActions.GetMapsRoutes -> {
+                handleGetMapsRoutes(action.destination, action.origin, action.travelMode, this)
+            }
+
         }
 
+    }
+
+    private suspend fun handleGetMapsRoutes(
+        destination: MyLatLng,
+        origin: MyLatLng,
+        travelMode: com.besha.egyptguide.features.maps.data.dto.request.TravelMode,
+        collector: FlowCollector<MapsResults>
+    ) {
+        collector.emit(MapsResults.Routes(CommonViewState(isLoading = true)))
+        try {
+            Log.d("routes", "1")
+
+            val request = RoutesRequestDto(
+                destination = Destination(
+                    location = Location(
+                        latLng = MyLatLng(destination.latitude, destination.longitude)
+                    )
+                ),
+                origin = Origin(
+                    location = Location(
+                        latLng = MyLatLng(origin.latitude, origin.longitude)
+                    )
+                ),
+                travelMode = travelMode
+            )
+            val result = getMapsRoutesUseCase(request)
+
+            when(result){
+                is DataState.Success -> {
+                    Log.d("routes", "2")
+                    collector.emit(MapsResults.Routes(CommonViewState(data = result.data)))
+
+                }
+                is DataState.Error -> {
+                    Log.d("routes", "3")
+                    collector.emit(MapsResults.Routes(CommonViewState(errorThrowable = result.throwable)))
+                }
+                else -> {}
+            }
+
+        } catch (e: Exception) {
+            Log.d("routes", "2 error")
+            Log.d("routes", "${e.message}")
+
+            collector.emit(MapsResults.Routes(CommonViewState(errorThrowable = Throwable(message = e.message ?: "Unknown Error"))))
+        }
     }
 
     private suspend fun handleNearBySearch(
@@ -97,9 +162,83 @@ class MapsViewModel @Inject constructor(
         types: List<String>,
         collector: FlowCollector<MapsResults>
     ) {
-        val result = mapsNearBySearchUseCase(currentLocation, types)
-        collector.emit(MapsResults.NearByPlaces(CommonViewState(data = result)))
+        collector.emit(MapsResults.NearByPlaces(CommonViewState(isLoading = true)))
+        val nearbyResults = mapsNearBySearchUseCase(currentLocation, types)
 
+        if (nearbyResults.isEmpty()) {
+            collector.emit(MapsResults.NearByPlaces(CommonViewState(data = emptyList())))
+            return
+        }
+
+        val matrixRequest = MatrixRequestDto(
+            origins = listOf(
+                OriginX(
+                    waypoint = Waypoint(
+                        location = Location(
+                            latLng = MyLatLng(currentLocation.latitude, currentLocation.longitude)
+                        )
+                    )
+                )
+            ),
+            destinations = nearbyResults.map { place ->
+                DestinationX(
+                    waypoint = Waypoint(
+                        location = Location(
+                            latLng = MyLatLng(
+                                place.location?.latitude ?: 0.0,
+                                place.location?.longitude ?: 0.0
+                            )
+                        )
+                    )
+                )
+            }
+        )
+
+        val matrixResult = getMapsMatrixUseCase(matrixRequest)
+
+        when (matrixResult) {
+            is DataState.Success -> {
+                val mapsPlaces = nearbyResults.mapIndexed { index, myPlace ->
+                    val matrixData = matrixResult.data.find { it.destinationIndex == index }
+                    MapsPlace(
+                        id = myPlace.id,
+                        displayName = myPlace.displayName,
+                        formattedAddress = myPlace.formattedAddress,
+                        location = myPlace.location,
+                        imageUri = myPlace.imageUri,
+                        distanceMeters = matrixData?.distanceMeters,
+                        duration = matrixData?.duration
+                    )
+                }.sortedBy { mapsPlace ->
+                    mapsPlace.duration?.removeSuffix("s")?.toDoubleOrNull() ?: Double.MAX_VALUE
+                }
+                collector.emit(MapsResults.NearByPlaces(CommonViewState(data = mapsPlaces)))
+            }
+            is DataState.Error -> {
+                val mapsPlaces = nearbyResults.map { myPlace ->
+                    MapsPlace(
+                        id = myPlace.id,
+                        displayName = myPlace.displayName,
+                        formattedAddress = myPlace.formattedAddress,
+                        location = myPlace.location,
+                        imageUri = myPlace.imageUri
+                    )
+                }
+                collector.emit(MapsResults.NearByPlaces(CommonViewState(data = mapsPlaces, errorThrowable = matrixResult.throwable)))
+            }
+            else -> {
+                val mapsPlaces = nearbyResults.map { myPlace ->
+                    MapsPlace(
+                        id = myPlace.id,
+                        displayName = myPlace.displayName,
+                        formattedAddress = myPlace.formattedAddress,
+                        location = myPlace.location,
+                        imageUri = myPlace.imageUri
+                    )
+                }
+                collector.emit(MapsResults.NearByPlaces(CommonViewState(data = mapsPlaces)))
+            }
+        }
     }
 
     private suspend fun handleTextSearchBy(
@@ -107,12 +246,83 @@ class MapsViewModel @Inject constructor(
         query: String,
         collector: FlowCollector<MapsResults>
     ) {
+        collector.emit(MapsResults.NearByPlaces(CommonViewState(isLoading = true)))
+        val searchResults = textSearchByUseCase(currentLocation, query)
 
-        val result = textSearchByUseCase(currentLocation, query)
+        if (searchResults.isEmpty()) {
+            collector.emit(MapsResults.NearByPlaces(CommonViewState(data = emptyList())))
+            return
+        }
 
-        collector.emit(MapsResults.NearByPlaces(CommonViewState(data = result)))
+        val matrixRequest = MatrixRequestDto(
+            origins = listOf(
+                OriginX(
+                    waypoint = Waypoint(
+                        location = Location(
+                            latLng = MyLatLng(currentLocation.latitude, currentLocation.longitude)
+                        )
+                    )
+                )
+            ),
+            destinations = searchResults.map { place ->
+                DestinationX(
+                    waypoint = Waypoint(
+                        location = Location(
+                            latLng = MyLatLng(
+                                place.location?.latitude ?: 0.0,
+                                place.location?.longitude ?: 0.0
+                            )
+                        )
+                    )
+                )
+            }
+        )
 
+        val matrixResult = getMapsMatrixUseCase(matrixRequest)
 
+        when (matrixResult) {
+            is DataState.Success -> {
+                val mapsPlaces = searchResults.mapIndexed { index, myPlace ->
+                    val matrixData = matrixResult.data.find { it.destinationIndex == index }
+                    MapsPlace(
+                        id = myPlace.id,
+                        displayName = myPlace.displayName,
+                        formattedAddress = myPlace.formattedAddress,
+                        location = myPlace.location,
+                        imageUri = myPlace.imageUri,
+                        distanceMeters = matrixData?.distanceMeters,
+                        duration = matrixData?.duration
+                    )
+                }.sortedBy { mapsPlace ->
+                    mapsPlace.duration?.removeSuffix("s")?.toDoubleOrNull() ?: Double.MAX_VALUE
+                }
+                collector.emit(MapsResults.NearByPlaces(CommonViewState(data = mapsPlaces)))
+            }
+            is DataState.Error -> {
+                val mapsPlaces = searchResults.map { myPlace ->
+                    MapsPlace(
+                        id = myPlace.id,
+                        displayName = myPlace.displayName,
+                        formattedAddress = myPlace.formattedAddress,
+                        location = myPlace.location,
+                        imageUri = myPlace.imageUri
+                    )
+                }
+                collector.emit(MapsResults.NearByPlaces(CommonViewState(data = mapsPlaces, errorThrowable = matrixResult.throwable)))
+            }
+            else -> {
+                val mapsPlaces = searchResults.map { myPlace ->
+                    MapsPlace(
+                        id = myPlace.id,
+                        displayName = myPlace.displayName,
+                        formattedAddress = myPlace.formattedAddress,
+                        location = myPlace.location,
+                        imageUri = myPlace.imageUri
+                    )
+                }
+                collector.emit(MapsResults.NearByPlaces(CommonViewState(data = mapsPlaces)))
+            }
+        }
     }
 
 

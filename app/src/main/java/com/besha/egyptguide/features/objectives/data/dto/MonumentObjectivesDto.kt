@@ -1,12 +1,15 @@
 package com.besha.egyptguide.features.objectives.data.dto
 
-data class MonumentObjectivesResponseItem(
+import com.google.gson.annotations.SerializedName
+
+data class MonumentObjectivesDto(
     val completed: Boolean? = null,
     val completion_date: Any? = null,
     val current_progress: String? = null,
     val description: String? = null,
     val id: String? = null,
-    val monuments: List<Monument?>? = null,
+    @SerializedName("monuments")
+    val monumentObjectivesItems: List<MonumentObjectivesItem?>? = null,
     val points_reward: Int? = null,
     val status: String? = null,
     val title: String? = null,

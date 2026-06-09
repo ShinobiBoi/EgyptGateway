@@ -11,11 +11,15 @@ import com.besha.egyptguide.features.quiz.data.model.Quiz
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizResponse
 import com.besha.egyptguide.features.camera.data.dto.VisitRequest
 import com.besha.egyptguide.features.camera.data.dto.VisitResponse
+import com.besha.egyptguide.features.maps.data.dto.MatrixDto
+import com.besha.egyptguide.features.maps.data.dto.RoutesDto
+import com.besha.egyptguide.features.maps.data.dto.request.MatrixRequestDto
+import com.besha.egyptguide.features.maps.data.dto.request.RoutesRequestDto
 import com.besha.egyptguide.features.monuments.data.dto.MonumentDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingDto
 import com.besha.egyptguide.features.monuments.data.dto.RatingSummaryDto
-import com.besha.egyptguide.features.objectives.data.dto.MonumentObjectivesResponse
-import com.besha.egyptguide.features.objectives.data.dto.TicketObjectivesResponse
+import com.besha.egyptguide.features.objectives.data.dto.MonumentObjectivesDto
+import com.besha.egyptguide.features.objectives.data.dto.TicketObjectivesDto
 import com.besha.egyptguide.features.quiz.data.model.SubmitQuizRequest
 import com.besha.egyptguide.features.tickets.data.dto.GetTicketResponse
 import com.besha.egyptguide.features.tickets.data.dto.SubmitTicketResponse
@@ -151,15 +155,34 @@ interface BackEndServices {
         @Path("ticket_id") ticketId: String
     ): Response<TicketDetailsResponse>
 
+
+    //maps///////////////////////////////////////////////////////////////////////
+
+
+    @POST("maps/routes")
+    suspend fun mapsRoutes(
+        @Body request: RoutesRequestDto
+    ): Response<RoutesDto>
+
+    @POST("maps/matrix")
+    suspend fun mapsMatrix(
+        @Body request: MatrixRequestDto
+    ): Response<List<MatrixDto>>
+
+
+
+
     //objectives///////////////////////////////////////////////////
+
+
 
     @GET("objectives/my")
     suspend fun monumentObjectives(
-    ): Response<MonumentObjectivesResponse>
+    ): Response<List<MonumentObjectivesDto>>
 
     @GET("objectives/tickets")
     suspend fun ticketObjectives(
-    ): Response<TicketObjectivesResponse>
+    ): Response<List<TicketObjectivesDto>>
 
 
 }

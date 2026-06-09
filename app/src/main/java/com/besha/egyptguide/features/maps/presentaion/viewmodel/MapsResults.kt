@@ -3,11 +3,11 @@ package com.besha.egyptguide.features.maps.presentaion.viewmodel
 import com.besha.egyptguide.appcore.data.model.MyPlace
 import com.besha.egyptguide.appcore.mvi.CommonViewState
 import com.besha.egyptguide.appcore.mvi.Result
-import com.besha.egyptguide.appcore.mvi.ViewState
+import com.besha.egyptguide.features.maps.data.dto.RoutesDto
+import com.besha.egyptguide.features.maps.domain.model.MapsPlace
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.Place
 
 sealed class MapsResults() : Result<MapsViewState> {
 
@@ -57,7 +57,7 @@ sealed class MapsResults() : Result<MapsViewState> {
         }
     }
 
-    data class NearByPlaces(val places: CommonViewState<List<MyPlace>>) : MapsResults() {
+    data class NearByPlaces(val places: CommonViewState<List<MapsPlace>>) : MapsResults() {
         override fun reduce(
             defaultState: MapsViewState,
             oldState: MapsViewState
@@ -99,7 +99,14 @@ sealed class MapsResults() : Result<MapsViewState> {
         }
     }
 
+    data class Routes(val routes: CommonViewState<RoutesDto>) : MapsResults() {
+        override fun reduce(
+            defaultState: MapsViewState,
+            oldState: MapsViewState
+        ): MapsViewState {
+            return oldState.copy(routes = routes)
+        }
+    }
+
 
 }
-
-

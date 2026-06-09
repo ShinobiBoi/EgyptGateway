@@ -1,6 +1,6 @@
 package com.besha.egyptguide.features.objectives.data.dto
 
-data class TicketObjectivesResponseItem(
+data class TicketObjectivesDto(
     val approved_count: Int? = null,
     val completed: Boolean? = null,
     val completion_date: String? = null,
