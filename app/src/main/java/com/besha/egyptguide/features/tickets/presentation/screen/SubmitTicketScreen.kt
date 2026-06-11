@@ -63,6 +63,7 @@ fun SubmitTicketScreen(
         if (state.submitResult.data != null && state.submitResult.data?.success == true) {
             Toast.makeText(context, "Ticket submitted successfully!", Toast.LENGTH_SHORT).show()
             viewModel.executeAction(TicketsActions.ResetSubmitState)
+            selectedImageUri=null
         } else if (state.submitResult.errorThrowable != null) {
             Toast.makeText(context, "Error: ${state.submitResult.errorThrowable?.message}", Toast.LENGTH_SHORT).show()
         }

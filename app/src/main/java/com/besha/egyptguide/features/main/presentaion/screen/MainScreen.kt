@@ -99,13 +99,8 @@ fun MainScreen(rootController: NavController,category: String?) {
                 HomeScreen(
                     onPlaceClick = { place ->
                         navController.navigate(
-                            ScreenResources.PlaceDetailsRoute(
+                            ScreenResources.MapsRoute(
                                 id = place.id,
-                                displayName = place.displayName,
-                                formattedAddress = place.formattedAddress,
-                                imageUri = place.imageUri?.toString(),
-                                lat = place.location?.latitude ?: 0.0,
-                                lng = place.location?.longitude ?: 0.0
                             )
                         )
                     },
@@ -120,9 +115,10 @@ fun MainScreen(rootController: NavController,category: String?) {
                     }
                 )
             }
-            composable<ScreenResources.MapsRoute> {
+            composable<ScreenResources.MapsRoute> { backStackEntry ->
+                val maps: ScreenResources.MapsRoute = backStackEntry.toRoute()
 
-                MapsScreen(category) { screenRoute ->
+                MapsScreen(maps.id,category) { screenRoute ->
                     navController.navigate(
                         screenRoute
                     )

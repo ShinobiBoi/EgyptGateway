@@ -3,6 +3,7 @@ package com.besha.egyptguide.features.profile.presenation.viewmodel
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.besha.egyptguide.appcore.data.model.DataState
@@ -77,7 +78,6 @@ class ProfileViewModel @Inject constructor(
                     message = "How about some ${action.category} for lunch?"
                 )
 
-                
                 alarmScheduler.schedule(timeAlarm)
             }
         }

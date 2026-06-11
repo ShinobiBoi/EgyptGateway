@@ -54,7 +54,7 @@ sealed class TicketsResults : Result<TicketsViewState> {
 
     data class SubmitTicket(val submitResult: CommonViewState<SubmitTicketResponse>) : TicketsResults() {
         override fun reduce(defaultState: TicketsViewState, oldState: TicketsViewState): TicketsViewState {
-            return oldState.copy(submitResult = submitResult)
+            return oldState.copy(submitResult = submitResult,)
         }
     }
 

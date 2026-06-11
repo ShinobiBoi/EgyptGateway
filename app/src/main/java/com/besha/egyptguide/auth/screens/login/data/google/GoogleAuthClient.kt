@@ -196,6 +196,22 @@ class GoogleAuthClient  @Inject constructor(
         }
     }
 
+    suspend fun forgotPassword(email: String): LoginResponse {
+        return try {
+            auth.sendPasswordResetEmail(email).await()
+            LoginResponse(
+                isSuccessful = true,
+                errorMessage = null
+            )
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            LoginResponse(
+                isSuccessful = false,
+                errorMessage = e.message ?: "Failed to send reset email"
+            )
+        }
+    }
+
     suspend fun signOut(){
         try {
             credentialManager.clearCredentialState(

@@ -32,7 +32,7 @@ sealed class ScreenResources {
     object ExploreRoute : ScreenResources()
 
     @Serializable
-    object MapsRoute : ScreenResources()
+    data class MapsRoute(val id: String?= null) : ScreenResources()
 
     @Serializable
     object ProfileRoute : ScreenResources()
@@ -95,7 +95,7 @@ sealed class ScreenResources {
                 route.contains(HomeRoute::class.qualifiedName ?: "") -> HomeRoute
                 route.contains(CalendarRoute::class.qualifiedName ?: "") -> CalendarRoute
                 route.contains(ExploreRoute::class.qualifiedName ?: "") -> ExploreRoute
-                route.contains(MapsRoute::class.qualifiedName ?: "") -> MapsRoute
+                route.contains(MapsRoute::class.qualifiedName ?: "") -> MapsRoute()
                 route.contains(ProfileRoute::class.qualifiedName ?: "") -> ProfileRoute
                 route.contains(TicketsRoute::class.qualifiedName ?: "") -> TicketsRoute
                 route.contains(SubmitTicketRoute::class.qualifiedName ?: "") -> SubmitTicketRoute

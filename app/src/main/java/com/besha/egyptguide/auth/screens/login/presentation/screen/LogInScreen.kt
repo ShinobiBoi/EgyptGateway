@@ -253,7 +253,10 @@ fun LogInScreen(
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp),
+                .padding(top = 16.dp)
+                .clickable {
+                    navController.navigate(ScreenResources.ForgotPassword)
+                },
             color = colorResource(R.color.blue),
             text = stringResource(R.string.forgot_password),
             fontSize = 12.sp,

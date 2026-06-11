@@ -321,10 +321,6 @@ fun ProfileScreen(rootController: NavController, childController: NavController)
                                 editedName = state.profile.data?.name ?: ""
                                 showNameDialog = true
                             }
-                            HorizontalDivider(color = colorResource(R.color.gray))
-                            ProfileInfoItemRow("Language", if(state.profile.data?.language == "en") "English" else "Arabic") {
-                                showLanguageDialog = true
-                            }
                         }
                     }
 

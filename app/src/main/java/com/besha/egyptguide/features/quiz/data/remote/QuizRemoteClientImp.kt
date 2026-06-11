@@ -1,5 +1,6 @@
 package com.besha.egyptguide.features.quiz.data.remote
 
+import android.util.Log
 import com.besha.egyptguide.appcore.data.model.DataState
 import com.besha.egyptguide.appcore.data.remote.BackEndServices
 import com.besha.egyptguide.features.quiz.data.model.Quiz
@@ -16,8 +17,10 @@ class QuizRemoteClientImp @Inject constructor(private val backEndServices: BackE
         val result = backEndServices.getQuiz(id)
 
         if (result.isSuccessful) {
+            Log.d("getQuiz", "getQuiz:  sucess${result.body()}")
             return DataState.Success(result.body()!!)
         } else
+            Log.d("getQuiz", "getQuiz: failed  ${result.message()}")
             return DataState.Error(Exception())
 
     }

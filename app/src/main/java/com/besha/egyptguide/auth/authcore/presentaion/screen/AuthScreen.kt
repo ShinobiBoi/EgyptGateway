@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.besha.egyptguide.appcore.navigation.ScreenResources
 import com.besha.egyptguide.auth.authcore.presentaion.viewmodel.AuthActions
 import com.besha.egyptguide.auth.authcore.presentaion.viewmodel.AuthViewModel
+import com.besha.egyptguide.auth.screens.login.presentation.screen.ForgotPasswordScreen
 import com.besha.egyptguide.auth.screens.login.presentation.screen.LogInScreen
 import com.besha.egyptguide.auth.screens.signup.presentation.screen.SignUpScreen
 
@@ -57,6 +58,10 @@ fun AuthScreen(rootController: NavController) {
 
             composable<ScreenResources.SignUpRoute> {
                 SignUpScreen(navController)
+            }
+
+            composable<ScreenResources.ForgotPassword> {
+                ForgotPasswordScreen(navController)
             }
         }
 

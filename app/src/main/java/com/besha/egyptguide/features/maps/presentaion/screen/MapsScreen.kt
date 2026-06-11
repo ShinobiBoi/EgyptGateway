@@ -55,6 +55,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapsScreen(
+    id: String?,
     category: String?,
     onNavigateToDetails: (ScreenResources.PlaceDetailsRoute) -> Unit,
 ) {
@@ -91,6 +92,9 @@ fun MapsScreen(
                 if (category != null) {
                     viewModel.executeAction(MapsActions.SearchByText(latLng, category))
                 }
+                if (id != null) {
+                    viewModel.executeAction(MapsActions.SelectPlace(id,state.sessionToken))
+                }
             }
         }
     }
@@ -100,7 +104,12 @@ fun MapsScreen(
             scaffoldState.bottomSheetState.expand()
             state.currentLocation.data?.let { latLng ->
                 cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(LatLng(latLng.latitude - 0.02, latLng.longitude), 12f), 800
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            latLng.latitude - 0.02,
+                            latLng.longitude
+                        ), 12f
+                    ), 800
                 )
             }
         }
@@ -114,14 +123,27 @@ fun MapsScreen(
         state.selectedPlace.data?.location?.let { latLng ->
             val origin = state.currentLocation.data
             if (origin != null) {
-                viewModel.executeAction(MapsActions.GetMapsRoutes(destination = MyLatLng(
-                    latitude = latLng.latitude,
-                    longitude = latLng.longitude
-                ), origin = MyLatLng(latitude = origin.latitude, longitude =  origin.longitude)))
+                Log.d("MapsScreen", "get route")
+                viewModel.executeAction(
+                    MapsActions.GetMapsRoutes(
+                        destination = MyLatLng(
+                            latitude = latLng.latitude,
+                            longitude = latLng.longitude
+                        ),
+                        origin = MyLatLng(latitude = origin.latitude, longitude = origin.longitude)
+                    )
+                )
             }
-            
+
             scaffoldState.bottomSheetState.expand()
-            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(latLng.latitude-0.001, latLng.longitude), 16f), 800)
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        latLng.latitude - 0.001,
+                        latLng.longitude
+                    ), 16f
+                ), 800
+            )
         }
         isSearchFocused = false
         if (state.selectedPlace.data == null && state.nearByPlaces.data.isNullOrEmpty() && scaffoldState.bottomSheetState.isVisible) {
@@ -154,21 +176,33 @@ fun MapsScreen(
                         )
                     }
                 )
+
                 !state.nearByPlaces.data.isNullOrEmpty() -> NearbyPlacesSheet(
                     places = state.nearByPlaces.data!!,
                     onPlaceClick = { place ->
                         place.location?.let {
-                            viewModel.executeAction(MapsActions.SelectPlace(place.id!!, state.sessionToken))
+                            viewModel.executeAction(
+                                MapsActions.SelectPlace(
+                                    place.id!!,
+                                    state.sessionToken
+                                )
+                            )
                         }
                     },
                     onCloseClick = { viewModel.executeAction(MapsActions.EmptyNearBySearch) }
                 )
-                else -> Box(Modifier.fillMaxWidth().height(1.dp).background(Color.Transparent))
+
+                else -> Box(Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color.Transparent))
             }
         }
     ) { paddingValues ->
 
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)) {
 
             // ── Map ───────────────────────────────────────────────────────
             GoogleMap(
@@ -176,67 +210,81 @@ fun MapsScreen(
                 cameraPositionState = cameraPositionState,
                 onMapClick = { focusManager.clearFocus() },
                 properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
-                uiSettings = MapUiSettings(myLocationButtonEnabled = false, zoomControlsEnabled = false)
+                uiSettings = MapUiSettings(
+                    myLocationButtonEnabled = false,
+                    zoomControlsEnabled = false
+                )
             ) {
 
-                if (state.selectedPlace.data==null)
+                if (state.selectedPlace.data == null)
                 // Nearby markers — pink accent
-                state.nearByPlaces.data?.forEach { place ->
-                    place.location?.let { latLng ->
-                        MarkerComposable(
-                            state = MarkerState(position = latLng),
-                            title = place.displayName ?: "",
-                            snippet = place.formattedAddress ?: "",
-                            onClick = {
-                                viewModel.executeAction(MapsActions.SelectPlace(place.id!!, state.sessionToken))
-                                true
+                    state.nearByPlaces.data?.forEach { place ->
+                        place.location?.let { latLng ->
+                            MarkerComposable(
+                                state = MarkerState(position = latLng),
+                                title = place.displayName ?: "",
+                                snippet = place.formattedAddress ?: "",
+                                onClick = {
+                                    viewModel.executeAction(
+                                        MapsActions.SelectPlace(
+                                            place.id!!,
+                                            state.sessionToken
+                                        )
+                                    )
+                                    true
+                                }
+                            ) {
+                                ModernMarker(
+                                    color = colorResource(R.color.blue),
+                                    isSelected = false
+                                )
                             }
-                        ) {
-                            ModernMarker(
-                                color = colorResource(R.color.blue),
-                                isSelected = false
-                            )
                         }
                     }
-                }
 
                 // Selected place marker
-                state.selectedPlace.data?.location?.let { latLng ->
-                    val firstRoute = state.routes.data?.routes?.firstOrNull()
-                    MarkerComposable(
-                        state = MarkerState(position = latLng),
-                        title = state.selectedPlace.data?.displayName ?: "",
-                        snippet = state.selectedPlace.data?.formattedAddress ?: "",
-                        
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            if (firstRoute != null) {
-                                RouteInfoLabel(
-                                    duration = formatDuration(firstRoute.duration),
-                                    distance = formatDistance(firstRoute.distanceMeters)
+                state.routes.data?.let {
+
+
+                    state.selectedPlace.data?.location?.let { latLng ->
+                        val firstRoute = state.routes.data?.routes?.firstOrNull()
+                        Log.d("MapsScreen", "selected place marker: $firstRoute")
+
+                        MarkerComposable(
+                            state = MarkerState(position = latLng),
+                            title = state.selectedPlace.data?.displayName ?: "",
+                            snippet = state.selectedPlace.data?.formattedAddress ?: "",
+
+                            ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                if (firstRoute != null) {
+                                    RouteInfoLabel(
+                                        duration = formatDuration(firstRoute.duration),
+                                        distance = formatDistance(firstRoute.distanceMeters)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
+                                ModernMarker(
+                                    color = colorResource(R.color.blue),
+                                    isSelected = true
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
                             }
-                            ModernMarker(
-                                color = colorResource(R.color.blue),
-                                isSelected = true
-                            )
                         }
                     }
                 }
 
                 // Show Route Polyline
                 if (state.selectedPlace.data != null)
-                state.routes.data?.routes?.forEach { route ->
-                    route.polyline?.encodedPolyline?.let { encoded ->
-                        val points = PolylineDecoder.decode(encoded)
-                        Polyline(
-                            points = points,
-                            color = colorResource(R.color.blue),
-                            width = 12f
-                        )
+                    state.routes.data?.routes?.forEach { route ->
+                        route.polyline?.encodedPolyline?.let { encoded ->
+                            val points = PolylineDecoder.decode(encoded)
+                            Polyline(
+                                points = points,
+                                color = colorResource(R.color.blue),
+                                width = 12f
+                            )
+                        }
                     }
-                }
             }
 
             // ── Search overlay ────────────────────────────────────────────
@@ -270,14 +318,21 @@ fun MapsScreen(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = if (isSearchFocused) colorResource(R.color.blue) else colorResource(R.color.text_secondary),
+                            tint = if (isSearchFocused) colorResource(R.color.blue) else colorResource(
+                                R.color.text_secondary
+                            ),
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(Modifier.width(10.dp))
                         BasicTextField(
                             value = state.query,
                             onValueChange = {
-                                viewModel.executeAction(MapsActions.OnQueryChange(it, state.sessionToken))
+                                viewModel.executeAction(
+                                    MapsActions.OnQueryChange(
+                                        it,
+                                        state.sessionToken
+                                    )
+                                )
                                 isSearchFocused = true
                             },
                             modifier = Modifier
@@ -357,7 +412,12 @@ fun MapsScreen(
                                         .fillMaxWidth()
                                         .clickable {
                                             state.currentLocation.data?.let {
-                                                viewModel.executeAction(MapsActions.SearchByText(it, state.query))
+                                                viewModel.executeAction(
+                                                    MapsActions.SearchByText(
+                                                        it,
+                                                        state.query
+                                                    )
+                                                )
                                             }
                                             focusManager.clearFocus()
                                         }
@@ -412,7 +472,10 @@ fun MapsScreen(
                                                 )
                                             )
                                             viewModel.executeAction(
-                                                MapsActions.SelectPlace(prediction.placeId, state.sessionToken)
+                                                MapsActions.SelectPlace(
+                                                    prediction.placeId,
+                                                    state.sessionToken
+                                                )
                                             )
                                             viewModel.executeAction(MapsActions.EmptyNearBySearch)
                                             focusManager.clearFocus()
@@ -492,7 +555,10 @@ fun RouteInfoLabel(duration: String, distance: String) {
                 fontWeight = FontWeight.ExtraBold,
                 color = colorResource(R.color.blue)
             )
-            Box(modifier = Modifier.size(4.dp).clip(CircleShape).background(Color.Gray))
+            Box(modifier = Modifier
+                .size(4.dp)
+                .clip(CircleShape)
+                .background(Color.Gray))
             Text(
                 text = distance,
                 fontSize = 12.sp,
@@ -505,7 +571,11 @@ fun RouteInfoLabel(duration: String, distance: String) {
 
 fun formatDistance(meters: Int?): String {
     if (meters == null) return ""
-    return if (meters < 1000) "${meters}m" else String.format(Locale.getDefault(), "%.1fkm", meters / 1000.0)
+    return if (meters < 1000) "${meters}m" else String.format(
+        Locale.getDefault(),
+        "%.1fkm",
+        meters / 1000.0
+    )
 }
 
 fun formatDuration(durationStr: String?): String {

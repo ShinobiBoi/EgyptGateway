@@ -23,8 +23,8 @@ import javax.inject.Singleton
 object AppModule {
 
     @Provides
-    fun provideBaseUrl() = "http://10.0.2.2:8000/"
-    //fun provideBaseUrl() = "http://127.0.0.1:8000/"
+    //fun provideBaseUrl() = "http://10.0.2.2:8000/"
+    fun provideBaseUrl() = "http://127.0.0.1:8000/"
 
 
 

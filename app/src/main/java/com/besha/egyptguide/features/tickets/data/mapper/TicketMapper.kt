@@ -29,7 +29,7 @@ fun TicketDetailsResponse.toDomain(): TicketDetails{
         name = name,
         status = TicketStatus(status?:"unkown"),
         userId = user_id,
-        verifiedAt = verified_at,
+        verifiedAt = verified_at?.toFormattedDate(),
     )
 }
 

@@ -159,9 +159,11 @@ fun TicketDetailsContent(ticket: TicketDetails) {
         ) {
             Column {
                 // Header Image
-                Box(modifier = Modifier
-                    .height(220.dp)
-                    .fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .height(220.dp)
+                        .fillMaxWidth()
+                ) {
                     AsyncImage(
                         model = if (ticket.imageUrl?.startsWith("/") == true) "http://127.0.0.1:8000${ticket.imageUrl}" else ticket.imageUrl,
                         contentDescription = null,
@@ -193,23 +195,17 @@ fun TicketDetailsContent(ticket: TicketDetails) {
                         color = Color.Black
                     )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        DetailInfo(
-                            label = "DATE",
-                            value = ticket.bookingDate ?: "N/A",
-                            icon = Icons.Default.CalendarMonth,
-                            modifier = Modifier.weight(3f)
-                        )
-                        DetailInfo(
-                            label = "VERIFIED",
-                            value = ticket.verifiedAt ?: "N/A",
-                            icon = Icons.Default.Verified,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+
+                    DetailInfo(
+                        label = "DATE",
+                        value = ticket.bookingDate ?: "N/A",
+                        icon = Icons.Default.CalendarMonth,
+                    )
+                    DetailInfo(
+                        label = "VERIFIED",
+                        value = ticket.verifiedAt ?: "N/A",
+                        icon = Icons.Default.Verified,
+                    )
 
                     HorizontalDivider(color = Color.LightGray.copy(alpha = 0.4f))
 
@@ -324,9 +320,11 @@ fun TicketPerforation() {
                 .background(colorResource(R.color.off_white))
         )
 
-        Canvas(modifier = Modifier
-            .weight(1f)
-            .height(1.dp)) {
+        Canvas(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+        ) {
             drawLine(
                 color = Color.LightGray.copy(alpha = 0.6f),
                 start = Offset(0f, 0f),

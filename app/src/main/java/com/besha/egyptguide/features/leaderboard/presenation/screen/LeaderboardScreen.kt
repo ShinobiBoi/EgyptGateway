@@ -210,18 +210,32 @@ fun PodiumItem(
                 color = color.copy(alpha = 0.1f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Log.d("PodiumItem", "PodiumItem: ${user.photo_url}")
 
-                    if (!user.photo_url.isNullOrEmpty()&& !user.photo_url.contains("default")){
-                        AsyncImage(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .size(40.dp),
-                            model = "http://127.0.0.1:8000/${user.photo_url}".toUri(),
-                            contentDescription = "profile pic",
-                            contentScale = ContentScale.Crop,
-                        )
-                    }else {
+
+                    val profilePic = user.photo_url
+
+
+                    if (!profilePic.isNullOrEmpty())
+
+                        if (profilePic.startsWith("http"))
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .size(40.dp),
+                                    model = user.photo_url.toUri(),
+                                    contentDescription = "profile pic",
+                                    contentScale = ContentScale.Crop,
+                                )
+                        else
+                            AsyncImage(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(40.dp),
+                                model = "http://127.0.0.1:8000${user.photo_url}".toUri(),
+                                contentDescription = "profile pic",
+                                contentScale = ContentScale.Crop,
+                            )
+                    else {
                         Text(
                             text = user.name?.take(1)?.uppercase() ?: "?",
                             fontSize = if (rank == 1) 32.sp else 24.sp,
@@ -308,16 +322,30 @@ fun LeaderboardRow(user: LeaderboardListItem, rank: Int, isCurrentUser: Boolean)
                 fontSize = 16.sp
             )
 
-            if (!user.photo_url.isNullOrEmpty()&& !user.photo_url.contains("default")){
-                AsyncImage(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(40.dp),
-                    model = "http://127.0.0.1:8000/${user.photo_url}".toUri(),
-                    contentDescription = "profile pic",
-                    contentScale = ContentScale.Crop,
-                )
-            }else {
+            val profilePic = user.photo_url
+
+
+            if (!profilePic.isNullOrEmpty())
+
+                if (profilePic.startsWith("http"))
+                    AsyncImage(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(40.dp),
+                        model = user.photo_url.toUri(),
+                        contentDescription = "profile pic",
+                        contentScale = ContentScale.Crop,
+                    )
+                else
+                    AsyncImage(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(40.dp),
+                        model = "http://127.0.0.1:8000${user.photo_url}".toUri(),
+                        contentDescription = "profile pic",
+                        contentScale = ContentScale.Crop,
+                    )
+            else {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
