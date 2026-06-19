@@ -188,8 +188,8 @@ All subsequent API requests use JWT in Authorization header
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@your-username](https://github.com/ShinobiBoi)
-- LinkedIn: [your-linkedin](https://www.linkedin.com/in/beshoy-mamdouh-128280293)
+- GitHub: [@ShinobiBoi](https://github.com/ShinobiBoi)
+- LinkedIn: [Beshoy Mamdouh](https://www.linkedin.com/in/beshoy-mamdouh-128280293)
 
 ---
 
