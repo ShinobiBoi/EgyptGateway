@@ -178,7 +178,7 @@ All subsequent API requests use JWT in Authorization header
 ### 🔐 Login & Sign Up
 | Login | Sign Up |
 |-------|---------|
-| ![log](screenshots/log.jpeg) | ![signup](screenshots/signup.jpeg) |
+| ![log](screenshots/log.jpeg) | ![signup](screenshots/signup.jpeg) | 
 
 ---
 
