@@ -2,7 +2,7 @@
 
 > A gamified travel companion for exploring Egypt's heritage, built as a graduation project.
 
-Egypt Gateway is an Android application designed to make discovering Egypt's monuments more engaging, intelligent, and rewarding for tourists and locals alike. It combines interactive maps, AI-powered monument recognition, and a full gamification system to turn cultural tourism into an immersive experience.
+Egypt Gateway is an Android application designed to make discovering Egypt's monuments more engaging, intelligent, and rewarding for tourists and locals alike. It combines interactive maps, AI-powered monument recognition, and a full gamification system to turn cultural tourism into an immersive experience, In addition, the application provides intelligent meal-time restaurant recommendations through scheduled notifications based on user food preferences and location.
 
 ---
 
@@ -48,6 +48,20 @@ Ticket submission and approval are fully handled through the backend. The mobile
 - The backend processes and approves or rejects the ticket
 - Approved tickets automatically update the user's points and progress toward ticket objectives server-side, with the mobile app reflecting the updated state
 
+- ### 🍽️ Meal Preferences Notifications
+A personalized food recommendation feature integrated directly into the Profile screen through a simple dialog.
+
+- Users can select their preferred **Lunch Time** and **Dinner Time**
+- Users choose a preferred food category for each meal (e.g., Egyptian, Fast Food, Italian, Seafood, etc.)
+- Notification scheduling is powered by:
+  - Android AlarmManager
+  - BroadcastReceiver
+  - WorkManager
+- At the selected meal time, the application automatically retrieves and recommends the **10 nearest restaurants** matching the chosen category based on the user's current location
+- Recommendations are delivered through Android notifications, allowing users to quickly discover nearby dining options
+- Preferences are configurable at any time through the Profile screen dialog
+
+
 ### 🏆 Leaderboard Screen
 - Displays top users ranked by total points
 - Shows the current user's live rank within the community
@@ -77,12 +91,21 @@ Ticket submission and approval are fully handled through the backend. The mobile
 | Interactive Map | Google Maps SDK for Android |
 | Place Search & Details | Google Places API |
 | Distance Sorting & Routing | Google Routes API |
+| Nearby Restaurant Recommendations | Google Places API + Location Services |
 
 ### AI & Backend Integration
 | Feature | Details |
 |---------|---------|
 | Image Upload | REST API (Multipart) |
 | Monument Classification | Backend AI model — 10-class image classification |
+
+### Notifications & Background Processing
+| Feature | Technology |
+|---------|-----------|
+| Scheduled Meal Notifications | AlarmManager |
+| Background Tasks | WorkManager |
+| Notification Triggering | BroadcastReceiver |
+| Push Notifications | Android Notification Manager |
 
 ---
 
@@ -174,6 +197,11 @@ All subsequent API requests use JWT in Authorization header
 | Tickets | Leaderboard |
 |---------|-------------|
 | ![tick](screenshots/tick.jpeg) | ![lead](screenshots/lead.jpeg) |
+
+### 👤 Profile & Meal Preferences
+| Profile | Meal Preferences |
+|----------|------------------|
+| ![profile](screenshots/profile.jpeg) | ![food](screenshots/food.jpeg) |
 
 ### 🔐 Login & Sign Up
 | Login | Sign Up |
