@@ -165,15 +165,20 @@ All subsequent API requests use JWT in Authorization header
 |--------------|--------------|
 | ![obj1](screenshots/obj1.jpeg) | ![obj2](screenshots/obj2.jpeg) |
 
+### 📝 Quiz
+| Quiz 1 | Quiz 2 |
+|--------|--------|
+| ![quiz1](screenshots/quiz1.jpeg) | ![quiz2](screenshots/quiz2.jpeg) |
+
 ### 🎫 Tickets & Leaderboard
 | Tickets | Leaderboard |
 |---------|-------------|
 | ![tick](screenshots/tick.jpeg) | ![lead](screenshots/lead.jpeg) |
 
-### 🔐 Login
-| Login |
-|-------|
-| ![log](screenshots/log.jpeg) |
+### 🔐 Login & Sign Up
+| Login | Sign Up |
+|-------|---------|
+| ![log](screenshots/log.jpeg) | ![signup](screenshots/signup.jpeg) |
 
 ---
 
@@ -187,7 +192,7 @@ All subsequent API requests use JWT in Authorization header
 
 ## 👨‍💻 Author
 
-**Your Name**
+**Beshoy Mamdouh**
 - GitHub: [@ShinobiBoi](https://github.com/ShinobiBoi)
 - LinkedIn: [Beshoy Mamdouh](https://www.linkedin.com/in/beshoy-mamdouh-128280293)
 
